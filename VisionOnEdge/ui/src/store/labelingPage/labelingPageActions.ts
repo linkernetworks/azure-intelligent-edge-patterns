@@ -39,7 +39,6 @@ export const getAnnotations = (id: number) => (dispatch): Promise<void> => {
       return JSON.parse(data?.labels);
     })
     .then((labels) => {
-
       const annotations = labels.map((e) => ({
         label: e,
         attribute: '',
