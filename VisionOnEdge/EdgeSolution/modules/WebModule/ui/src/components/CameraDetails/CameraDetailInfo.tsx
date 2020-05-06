@@ -16,8 +16,8 @@ const CameraDetailInfo: FC<CameraDetailInfoProps> = ({ id, name, rtsp, modelName
   const dispatch = useDispatch();
 
   return (
-    <Flex styles={{ padding: '1rem 2rem' }} column space="between">
-      <Grid columns="2" styles={{ gap: '3rem' }}>
+    <Flex styles={{ padding: '1em 2em' }} column space="between">
+      <Grid columns="2" styles={{ gap: '3em' }}>
         <Text size="larger" weight="semibold">
           Details
         </Text>
