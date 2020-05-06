@@ -1,7 +1,8 @@
-import React, { FC } from 'react';
+import React, { FC, memo } from 'react';
 import { Flex, Text, Grid, Button } from '@fluentui/react-northstar';
 import { useDispatch } from 'react-redux';
 
+import ConfirmDialog from '../ConfirmDialog';
 import ImageLink from '../ImageLink';
 import { deleteCamera } from '../../store/camera/cameraActions';
 
@@ -32,11 +33,25 @@ const CameraDetailInfo: FC<CameraDetailInfoProps> = ({ id, name, rtsp, modelName
           <Text size="large" content={modelName} />
         </Flex>
       </Grid>
-      <Button
-        primary
+      <ConfirmDialog
+        trigger={
+          <Button
+            primary
+            content="Delete Camera"
+            styles={{
+              backgroundColor: '#C4314B',
+              ':hover': { backgroundColor: '#A72037' },
+              ':active': { backgroundColor: '#8E192E' },
+            }}
+          />
+        }
         content="Delete Camera"
-        styles={{ backgroundColor: '#C4314B', ':hover': { backgroundColor: '#A72037' } }}
-        onClick={(): void => {
+        primaryStyles={{
+          backgroundColor: '#C4314B',
+          ':hover': { backgroundColor: '#A72037' },
+          ':active': { backgroundColor: '#8E192E' },
+        }}
+        onConfirm={(): void => {
           dispatch(deleteCamera(id));
         }}
       />
@@ -44,4 +59,4 @@ const CameraDetailInfo: FC<CameraDetailInfoProps> = ({ id, name, rtsp, modelName
   );
 };
 
-export default CameraDetailInfo;
+export default memo(CameraDetailInfo);
