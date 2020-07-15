@@ -3,7 +3,6 @@ import * as R from 'ramda';
 import Axios from 'axios';
 import uniqid from 'uniqid';
 import { Text, Checkbox, Flex, Alert, Provider } from '@fluentui/react-northstar';
-import { useDispatch } from 'react-redux';
 
 import { Button } from '../Button';
 import { LiveViewScene } from './LiveViewScene';
@@ -12,14 +11,13 @@ import useImage from '../LabelingPage/util/useImage';
 import { CreatingState } from './LiveViewContainer.type';
 import { errorTheme } from '../../themes/errorTheme';
 import { WarningDialog } from '../WarningDialog';
-import { thunkDeleteProject } from '../../store/project/projectActions';
 
 export const LiveViewContainer: React.FC<{
   showVideo: boolean;
   initialAOIData: AOIData;
   cameraId: number;
-}> = ({ showVideo, initialAOIData, cameraId }) => {
-  const dispatch = useDispatch();
+  onDeleteProject: () => void;
+}> = ({ showVideo, initialAOIData, cameraId, onDeleteProject }) => {
   const [showAOI, setShowAOI] = useState(initialAOIData.useAOI);
   const lasteUpdatedAOIs = useRef(initialAOIData.AOIs);
   const [AOIs, setAOIs] = useState<Box[]>(lasteUpdatedAOIs.current);
@@ -32,6 +30,7 @@ export const LiveViewContainer: React.FC<{
   const onCheckboxClick = async (): Promise<void> => {
     setShowAOI(!showAOI);
     setLoading(true);
+    setError(null);
     try {
       await Axios.patch(`/api/cameras/${cameraId}/`, {
         area: JSON.stringify({
@@ -51,6 +50,7 @@ export const LiveViewContainer: React.FC<{
 
   const onUpdate = async (): Promise<void> => {
     setLoading(true);
+    setError(null);
     try {
       await Axios.patch(`/api/cameras/${cameraId}/`, {
         area: JSON.stringify({
@@ -128,9 +128,7 @@ export const LiveViewContainer: React.FC<{
             trigger={
               <Button content="Delete Configuration" primary circular styles={{ marginRight: 'auto' }} />
             }
-            onConfirm={(): void => {
-              dispatch(thunkDeleteProject());
-            }}
+            onConfirm={onDeleteProject}
           />
         </Provider>
       </Flex>
