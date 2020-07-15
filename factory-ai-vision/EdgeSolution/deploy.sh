@@ -21,34 +21,33 @@ if [[ ! $(git log -1 --oneline "${DIR}"/modules/InferenceModule | grep 'new vers
 	echo "Inference module version: ${INFERENCE_MODULE_VERSION} => ${INFERENCE_MODULE_NEW_VERSION}"
 	cat "${INFERENCE_MODULE_FILE}" | jq ".image.tag.version= \"${INFERENCE_MODULE_NEW_VERSION}\"" > ${INFERENCE_MODULE_FILE}.tmp
 	mv ${INFERENCE_MODULE_FILE}.tmp ${INFERENCE_MODULE_FILE}
-	git add 
+	git add ${INFERENCE_MODULE_FILE} 
 else
 	echo "Inference module not changed"
 fi
 
-#if [[ ! $(git log -1 --oneline "${DIR}"/modules/WebModule | grep 'new version by deploy.sh') ]]; then
-#	echo "Web module change"
-#	WEB_MODULE_NEW_VERSION=$(echo "${WEB_MODULE_VERSION}" | perl -pe 's/^((\d+\.)*)(\d+)(.*)$/$1.($3+1).$4/e' )
-#	echo "Web module version: ${WEB_MODULE_VERSION} => ${WEB_MODULE_NEW_VERSION}"
-#	cat "${WEB_MODULE_FILE}" | jq ".image.tag.version= \"${WEB_MODULE_NEW_VERSION}\"" > ${WEB_MODULE_FILE}
-#else
-#	echo "Web module not changed"
-#fi
+if [[ ! $(git log -1 --oneline "${DIR}"/modules/WebModule | grep 'new version by deploy.sh') ]]; then
+	echo "Web module change"
+	WEB_MODULE_NEW_VERSION=$(echo "${WEB_MODULE_VERSION}" | perl -pe 's/^((\d+\.)*)(\d+)(.*)$/$1.($3+1).$4/e' )
+	echo "Web module version: ${WEB_MODULE_VERSION} => ${WEB_MODULE_NEW_VERSION}"
+	cat "${WEB_MODULE_FILE}" | jq ".image.tag.version= \"${WEB_MODULE_NEW_VERSION}\"" > ${WEB_MODULE_FILE}.tmp
+	mv ${WEB_MODULE_FILE}.tmp ${WEB_MODULE_FILE}
+	git add ${WEB_MODULE_FILE} 
+else
+	echo "Web module not changed"
+fi
+
+git commit -m "new version by deploy.sh"
 
 
-# export INFERENCE_MODULE_VERSION="${INFERENCE_MODULE_VERSION}"
-# echo "${INFERENCE_MODULE_VERSION}" | awk 
 
-# sed "s/\"version\":.*$/\"version\": ${INFERENCE_MODULE_VERSION}/g" "${INFERENCE_MODULE_FILE}" > "${INFERENCE_MODULE_FILE}"
-# sed "s/\"version\":.*$/\"version\": ${WEBMODULE_MODULE_VERSION}/g" "${WEB_MODULE_FILE}" > "${WEB_MODULE_FILE}"
-
-# docker build  --rm -f "${DIR}/modules/InferenceModule/Dockerfile.cpuamd64" -t mycapreg.azurecr.io/intelligentedge/inferencemodule:${INFERENCE_MODULE_VERSION}-cpuamd64 "${DIR}/modules/InferenceModule"
-# docker push mycapreg.azurecr.io/intelligentedge/inferencemodule:${INFERENCE_MODULE_FILE}-cpuamd64
+docker build  --rm -f "${DIR}/modules/InferenceModule/Dockerfile.cpuamd64" -t mycapreg.azurecr.io/intelligentedge/inferencemodule:${INFERENCE_MODULE_NEW_VERSION}-cpuamd64 "${DIR}/modules/InferenceModule"
+docker push mycapreg.azurecr.io/intelligentedge/inferencemodule:${INFERENCE_MODULE_NEW_VERSION}-cpuamd64
  
-# docker build  --rm -f "${DIR}/modules/WebModule/Dockerfile.amd64" -t mycapreg.azurecr.io/intelligentedge/visionwebmodule:${WEBMODULE_MODULE_VERSION}-amd64 "${DIR}/modules/WebModule"
-# docker push mycapreg.azurecr.io/intelligentedge/visionwebmodule:${WEBMODULE_MODULE_VERSION}-amd64
+docker build  --rm -f "${DIR}/modules/WebModule/Dockerfile.amd64" -t mycapreg.azurecr.io/intelligentedge/visionwebmodule:${WEB_MODULE_NEW_VERSION}-amd64 "${DIR}/modules/WebModule"
+docker push mycapreg.azurecr.io/intelligentedge/visionwebmodule:${WEB_MODULE_NEW_VERSION}-amd64
 
-# DEPLOY_FILE="${DIR}/config/deployment.cpu.amd64.json"
+DEPLOY_FILE="${DIR}/config/deployment.cpu.amd64.json"
 
-# sed "s/visionwebmodule.*$/visionwebmodule:${WEB_MODULE_VERSION}-amd64/g" "${DEPLOY_FILE}"
-# sed "s/inferencemodule.*$/inferencemodule:${INFERENCE_MODULE_VERSION}-cpuamd64/g" "${DEPLOY_FILE}"
+sed "s/visionwebmodule.*$/visionwebmodule:${WEB_MODULE_NEW_VERSION}-amd64/g" "${DEPLOY_FILE}"
+sed "s/inferencemodule.*$/inferencemodule:${INFERENCE_MODULE_NEW_VERSION}-cpuamd64/g" "${DEPLOY_FILE}"
