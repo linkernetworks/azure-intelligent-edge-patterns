@@ -13,14 +13,27 @@ WEB_MODULE_VERSION=$(cat "${WEB_MODULE_FILE}" | jq '.image.tag.version')
 echo $INFERENECE_MODULE_FILE
 echo $WEB_MODULE_FILE
 
-echo -n "Inference module version:"
-echo -n ${INFERENECE_MODULE_VERSION}
-echo "=>" $(echo "${INFERENECE_MODULE_VERSION}" | perl -pe 's/^((\d+\.)*)(\d+)(.*)$/$1.($3+1).$4/e' )
-echo "WEB_MODULE_VERSION:" $WEB_MODULE_VERSION
-echo "=>" $(echo "${WEB_MODULE_VERSION}" | perl -pe 's/^((\d+\.)*)(\d+)(.*)$/$1.($3+1).$4/e' )
 
-export INFERENECE_MODULE_VERSION="${INFERENECE_MODULE_VERSION}"
-echo "${INFERENECE_MODULE_VERSION}" | awk 
+# Check module change
+if [[ $(git status ${DIR}/modules/InferenceModule --porcelain) ]]; then
+	echo -n "Inference module version:"
+	echo -n ${INFERENECE_MODULE_VERSION}
+	echo "=>" $(echo "${INFERENECE_MODULE_VERSION}" | perl -pe 's/^((\d+\.)*)(\d+)(.*)$/$1.($3+1).$4/e' )
+else
+	echo "Inference module not changed"
+fi
+
+if [[ $(git status ${DIR}/modules/WebModule --porcelain) ]]; then
+	echo -n "WebModule module version:"
+	echo "WEB_MODULE_VERSION:" $WEB_MODULE_VERSION
+	echo "=>" $(echo "${WEB_MODULE_VERSION}" | perl -pe 's/^((\d+\.)*)(\d+)(.*)$/$1.($3+1).$4/e' )
+else
+	echo "Web module not changed"
+fi
+
+
+# export INFERENECE_MODULE_VERSION="${INFERENECE_MODULE_VERSION}"
+# echo "${INFERENECE_MODULE_VERSION}" | awk 
 
 # sed "s/\"version\":.*$/\"version\": ${INFERENECE_MODULE_VERSION}/g" "${INFERENECE_MODULE_FILE}" > "${INFERENECE_MODULE_FILE}"
 # sed "s/\"version\":.*$/\"version\": ${WEBMODULE_MODULE_VERSION}/g" "${WEB_MODULE_FILE}" > "${WEB_MODULE_FILE}"
