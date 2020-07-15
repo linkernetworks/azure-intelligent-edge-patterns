@@ -4,44 +4,46 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # echo "${DIR}"
 
-INFERENECE_MODULE_FILE="${DIR}"/modules/InferenceModule/module.json
+INFERENCE_MODULE_FILE="${DIR}"/modules/InferenceModule/module.json
 WEB_MODULE_FILE="${DIR}"/modules/WebModule/module.json
 
-INFERENECE_MODULE_VERSION=$(cat "${INFERENECE_MODULE_FILE}" | jq '.image.tag.version' |  sed -e 's/^"//' -e 's/"$//')
+INFERENCE_MODULE_VERSION=$(cat "${INFERENCE_MODULE_FILE}" | jq '.image.tag.version' |  sed -e 's/^"//' -e 's/"$//')
 WEB_MODULE_VERSION=$(cat "${WEB_MODULE_FILE}" | jq '.image.tag.version' |sed -e 's/^"//' -e 's/"$//')
 
-# echo $INFERENECE_MODULE_FILE
-# echo $WEB_MODULE_FILE
+echo $INFERENCE_MODULE_FILE
+echo $WEB_MODULE_FILE
 
 
 # Check module change
 if [[ ! $(git log -1 --oneline "${DIR}"/modules/InferenceModule | grep 'new version by deploy.sh') ]]; then
 	echo "Inference module change"
-	echo "Inference module version:"
-	echo ${INFERENECE_MODULE_VERSION}
-	echo "=>" $(echo "${INFERENECE_MODULE_VERSION}" | perl -pe 's/^((\d+\.)*)(\d+)(.*)$/$1.($3+1).$4/e' )
-	jq $INFERENECE_MODULE_FILE
+	INFERENCE_MODULE_NEW_VERSION=$(echo "${INFERENCE_MODULE_VERSION}" | perl -pe 's/^((\d+\.)*)(\d+)(.*)$/$1.($3+1).$4/e' )
+	echo "Inference module version: ${INFERENCE_MODULE_VERSION} => ${INFERENCE_MODULE_NEW_VERSION}"
+	cat "${INFERENCE_MODULE_FILE}" | jq ".image.tag.version= \"${INFERENCE_MODULE_NEW_VERSION}\"" > ${INFERENCE_MODULE_FILE}.tmp
+	mv ${INFERENCE_MODULE_FILE}.tmp ${INFERENCE_MODULE_FILE}
+	git add 
 else
 	echo "Inference module not changed"
 fi
 
-if [[ ! $(git log -1 --oneline "${DIR}"/modules/WebModule | grep 'new version by deploy.sh') ]]; then
-	echo -n "WebModule module version:"
-	echo "WEB_MODULE_VERSION:" $WEB_MODULE_VERSION
-	echo "=>" $(echo 55,66 | perl -pe 's/^((\d+\.)*)(\d+)(.*)$/$1.($3+1).$4/e' )
-else
-	echo "Web module not changed"
-fi
+#if [[ ! $(git log -1 --oneline "${DIR}"/modules/WebModule | grep 'new version by deploy.sh') ]]; then
+#	echo "Web module change"
+#	WEB_MODULE_NEW_VERSION=$(echo "${WEB_MODULE_VERSION}" | perl -pe 's/^((\d+\.)*)(\d+)(.*)$/$1.($3+1).$4/e' )
+#	echo "Web module version: ${WEB_MODULE_VERSION} => ${WEB_MODULE_NEW_VERSION}"
+#	cat "${WEB_MODULE_FILE}" | jq ".image.tag.version= \"${WEB_MODULE_NEW_VERSION}\"" > ${WEB_MODULE_FILE}
+#else
+#	echo "Web module not changed"
+#fi
 
 
-# export INFERENECE_MODULE_VERSION="${INFERENECE_MODULE_VERSION}"
-# echo "${INFERENECE_MODULE_VERSION}" | awk 
+# export INFERENCE_MODULE_VERSION="${INFERENCE_MODULE_VERSION}"
+# echo "${INFERENCE_MODULE_VERSION}" | awk 
 
-# sed "s/\"version\":.*$/\"version\": ${INFERENECE_MODULE_VERSION}/g" "${INFERENECE_MODULE_FILE}" > "${INFERENECE_MODULE_FILE}"
+# sed "s/\"version\":.*$/\"version\": ${INFERENCE_MODULE_VERSION}/g" "${INFERENCE_MODULE_FILE}" > "${INFERENCE_MODULE_FILE}"
 # sed "s/\"version\":.*$/\"version\": ${WEBMODULE_MODULE_VERSION}/g" "${WEB_MODULE_FILE}" > "${WEB_MODULE_FILE}"
 
-# docker build  --rm -f "${DIR}/modules/InferenceModule/Dockerfile.cpuamd64" -t mycapreg.azurecr.io/intelligentedge/inferencemodule:${INFERENECE_MODULE_VERSION}-cpuamd64 "${DIR}/modules/InferenceModule"
-# docker push mycapreg.azurecr.io/intelligentedge/inferencemodule:${INFERENECE_MODULE_FILE}-cpuamd64
+# docker build  --rm -f "${DIR}/modules/InferenceModule/Dockerfile.cpuamd64" -t mycapreg.azurecr.io/intelligentedge/inferencemodule:${INFERENCE_MODULE_VERSION}-cpuamd64 "${DIR}/modules/InferenceModule"
+# docker push mycapreg.azurecr.io/intelligentedge/inferencemodule:${INFERENCE_MODULE_FILE}-cpuamd64
  
 # docker build  --rm -f "${DIR}/modules/WebModule/Dockerfile.amd64" -t mycapreg.azurecr.io/intelligentedge/visionwebmodule:${WEBMODULE_MODULE_VERSION}-amd64 "${DIR}/modules/WebModule"
 # docker push mycapreg.azurecr.io/intelligentedge/visionwebmodule:${WEBMODULE_MODULE_VERSION}-amd64
@@ -49,4 +51,4 @@ fi
 # DEPLOY_FILE="${DIR}/config/deployment.cpu.amd64.json"
 
 # sed "s/visionwebmodule.*$/visionwebmodule:${WEB_MODULE_VERSION}-amd64/g" "${DEPLOY_FILE}"
-# sed "s/inferencemodule.*$/inferencemodule:${INFERENECE_MODULE_VERSION}-cpuamd64/g" "${DEPLOY_FILE}"
+# sed "s/inferencemodule.*$/inferencemodule:${INFERENCE_MODULE_VERSION}-cpuamd64/g" "${DEPLOY_FILE}"
