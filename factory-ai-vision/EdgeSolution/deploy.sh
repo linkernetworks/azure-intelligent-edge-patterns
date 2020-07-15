@@ -2,31 +2,33 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-echo "${DIR}"
+# echo "${DIR}"
 
 INFERENECE_MODULE_FILE="${DIR}"/modules/InferenceModule/module.json
 WEB_MODULE_FILE="${DIR}"/modules/WebModule/module.json
 
-INFERENECE_MODULE_VERSION=$(cat "${INFERENECE_MODULE_FILE}" | jq '.image.tag.version')
-WEB_MODULE_VERSION=$(cat "${WEB_MODULE_FILE}" | jq '.image.tag.version')
+INFERENECE_MODULE_VERSION=$(cat "${INFERENECE_MODULE_FILE}" | jq '.image.tag.version' |  sed -e 's/^"//' -e 's/"$//')
+WEB_MODULE_VERSION=$(cat "${WEB_MODULE_FILE}" | jq '.image.tag.version' |sed -e 's/^"//' -e 's/"$//')
 
-echo $INFERENECE_MODULE_FILE
-echo $WEB_MODULE_FILE
+# echo $INFERENECE_MODULE_FILE
+# echo $WEB_MODULE_FILE
 
 
 # Check module change
-if [[ $(git status ${DIR}/modules/InferenceModule --porcelain) ]]; then
-	echo -n "Inference module version:"
-	echo -n ${INFERENECE_MODULE_VERSION}
+if [[ ! $(git log -1 --oneline "${DIR}"/modules/InferenceModule | grep 'new version by deploy.sh') ]]; then
+	echo "Inference module change"
+	echo "Inference module version:"
+	echo ${INFERENECE_MODULE_VERSION}
 	echo "=>" $(echo "${INFERENECE_MODULE_VERSION}" | perl -pe 's/^((\d+\.)*)(\d+)(.*)$/$1.($3+1).$4/e' )
+	jq $INFERENECE_MODULE_FILE
 else
 	echo "Inference module not changed"
 fi
 
-if [[ $(git status ${DIR}/modules/WebModule --porcelain) ]]; then
+if [[ ! $(git log -1 --oneline "${DIR}"/modules/WebModule | grep 'new version by deploy.sh') ]]; then
 	echo -n "WebModule module version:"
 	echo "WEB_MODULE_VERSION:" $WEB_MODULE_VERSION
-	echo "=>" $(echo "${WEB_MODULE_VERSION}" | perl -pe 's/^((\d+\.)*)(\d+)(.*)$/$1.($3+1).$4/e' )
+	echo "=>" $(echo 55,66 | perl -pe 's/^((\d+\.)*)(\d+)(.*)$/$1.($3+1).$4/e' )
 else
 	echo "Web module not changed"
 fi
