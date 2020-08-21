@@ -1,15 +1,15 @@
 # =========================================================
 # === Build Static UI                                   ===
 # =========================================================
-FROM node:12 as builder
+# FROM node:12 as builder
 
-WORKDIR /
-COPY ui app
-WORKDIR /app
-RUN rm -rf node_modules/
-RUN rm -rf build/
-RUN yarn install --production
-RUN yarn build
+# WORKDIR /
+# COPY ui app
+# WORKDIR /app
+# RUN rm -rf node_modules/
+# RUN rm -rf build/
+# RUN yarn install --production
+# RUN yarn build
 
 # =========================================================
 # === Build Backend                                     ===
@@ -33,13 +33,11 @@ RUN pip install -r ./requirements/production-arm.txt
 
 COPY backend/manage.py .
 COPY backend/config.py .
-COPY backend/vision_on_edge vision_on_edge
+COPY backend/voe_training voe_training
 COPY backend/configs configs
-RUN python manage.py makemigrations
-RUN python manage.py migrate
 
 RUN rm -rf ui_production
-COPY --from=builder /app/build vision_on_edge/ui_production
-EXPOSE 8000
+# COPY --from=builder /app/build voe_training/ui_production
+EXPOSE 7007
 
-CMD python manage.py runserver 0.0.0.0:8000
+CMD python3 manage.py makemigrations; python3 manage.py migrate; python manage.py runserver 0.0.0.0:7007
