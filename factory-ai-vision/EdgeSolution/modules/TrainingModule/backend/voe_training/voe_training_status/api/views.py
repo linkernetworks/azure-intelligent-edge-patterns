@@ -23,5 +23,6 @@ class TrainingStatusViewSet(FiltersMixin, viewsets.ModelViewSet):
 
     queryset = TrainingStatus.objects.all()
     serializer_class = TrainingStatusSerializer
+    lookup_field = 'uuid'
     filter_backends = (filters.OrderingFilter,)
     filter_mappings = {"project_id": "project__id"}

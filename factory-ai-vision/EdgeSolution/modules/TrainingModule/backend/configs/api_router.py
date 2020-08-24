@@ -14,12 +14,16 @@ from voe_training.voe_settings.api import views as voe_setting_views
 from voe_training.voe_projects.api import views as voe_project_views
 from voe_training.voe_training_status.api import \
     views as voe_training_status_views
+from voe_training.voe_training_iterations.api import \
+    views as voe_training_iteration_views
 from voe_training.notifications.api import views as notifications_views
 from voe_training.voe_parts.api import views as voe_part_views
 from voe_training.voe_images.api import views as voe_image_views
+from voe_training.voe_regions.api import views as voe_region_views
+
 # from voe_training.feedback.api import views as feedback_views
 # from voe_training.image_predictions.api import \
-    # views as image_prediction_views
+# views as image_prediction_views
 # from voe_training.locations.api import views as location_views
 
 # from voe_training.relabeling.api import views as relabel_views
@@ -34,15 +38,15 @@ router.register('settings', voe_setting_views.SettingViewSet)
 router.register('projects', voe_project_views.ProjectViewSet)
 router.register('training_status',
                 voe_training_status_views.TrainingStatusViewSet)
+router.register('training_iterations',
+                voe_training_iteration_views.TrainingIterationViewSet)
 router.register('notifications', notifications_views.NotificationViewSet)
 router.register('parts', voe_part_views.PartViewSet)
 router.register('images', voe_image_views.ImageViewSet)
-# router.register('cameras', views.CameraViewSet)
-# router.register('parts', azure_part_views.PartViewSet)
-# router.register('locations', location_views.LocationViewSet)
-# router.register('image_predictions',
-                # image_prediction_views.ImagePredictionViewSet)
+router.register('regions', voe_region_views.RegionViewSet)
 
+# router.register('image_predictions',
+# image_prediction_views.ImagePredictionViewSet)
 
 # router.register('tasks', azure_training_views.TaskViewSet)
 
@@ -83,7 +87,7 @@ urlpatterns += [
         name='schema-redoc'),
 ]
 
-# urlpatterns += [
+urlpatterns += [
     # url('streams/connect', stream_views.connect_stream),
     # path('streams/<int:stream_id>/disconnect', stream_views.disconnect_stream),
     # path('streams/<int:stream_id>/video_feed', stream_views.video_feed),
@@ -94,20 +98,20 @@ urlpatterns += [
     # path('projects/<int:project_id>/train', azure_training_views.train),
     # path('projects/<int:project_id>/export', azure_training_views.export),
     # path('projects/<int:project_id>/train_performance',
-         # azure_training_views.train_performance),
+    # azure_training_views.train_performance),
     # path('projects/<int:project_id>/inference_video_feed',
-         # stream_views.inference_video_feed),
+    # stream_views.inference_video_feed),
     # path('projects/<int:project_id>/pull_cv_project',
-         # azure_training_views.pull_cv_project),
+    # azure_training_views.pull_cv_project),
     # path('projects/<int:project_id>/update_prob_threshold',
-         # azure_training_views.update_prob_threshold),
+    # azure_training_views.update_prob_threshold),
     # path('projects/<int:project_id>/reset_project',
-         # azure_training_views.reset_project),
+    # azure_training_views.reset_project),
     # path('projects/<int:project_id>/reset_camera',
-         # azure_training_views.project_reset_camera),
+    # azure_training_views.project_reset_camera),
     # path('projects/null/export', azure_training_views.export_null),
     # path('relabel', relabel_views.upload_relabel_image),
     # path('relabel/update', relabel_views.relabel_update),
-    # path('appinsight/key', app_insight_views.instrumentation_key),
+    path('appinsight/key', app_insight_views.instrumentation_key),
     # path('camera_utils/verify_rtsp', camera_util_views.verify_rtsp),
-# ]
+]

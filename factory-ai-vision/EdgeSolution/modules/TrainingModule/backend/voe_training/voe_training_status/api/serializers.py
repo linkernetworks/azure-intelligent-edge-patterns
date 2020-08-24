@@ -20,4 +20,10 @@ class TrainingStatusSerializer(serializers.ModelSerializer):
         """
 
         model = TrainingStatus
-        fields = '__all__'
+        exclude = ['id']
+
+    def __init__(self, *args, **kwargs):
+        """If object exist, project be read_only."""
+        super().__init__(*args, **kwargs)
+        if self.instance is not None:
+            self.fields.get('iteration').read_only = True

@@ -21,12 +21,18 @@ class PartSerializer(serializers.ModelSerializer):
         """
 
         model = Part
-        fields = "__all__"
+        exclude = ['id']
         extra_kwargs = {
             "description": {
                 "required": False
             },
         }
+
+    def __init__(self, *args, **kwargs):
+        """If object exist, project be read_only."""
+        super().__init__(*args, **kwargs)
+        if self.instance is not None:
+            self.fields.get('project').read_only = True
 
     def create(self, validated_data):
         """create.

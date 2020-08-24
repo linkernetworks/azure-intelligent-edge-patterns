@@ -25,6 +25,7 @@ class SettingViewSet(viewsets.ModelViewSet):
 
     queryset = Setting.objects.all()
     serializer_class = SettingSerializer
+    lookup_field = 'uuid'
 
     @action(detail=True, methods=["get"])
     def list_projects(self, request, **kwargs) -> Response:

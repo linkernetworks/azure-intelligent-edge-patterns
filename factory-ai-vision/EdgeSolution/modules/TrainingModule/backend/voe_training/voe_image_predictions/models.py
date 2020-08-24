@@ -2,6 +2,7 @@
 Models for azure prediction
 """
 
+import uuid as uuid_lib
 import logging
 
 from django.db import models
@@ -12,6 +13,11 @@ logger = logging.getLogger(__name__)
 
 class ImagePrediction(models.Model):
     """Image Prediction"""
+    uuid = models.UUIDField(  # Used by the API to look up the record
+        db_index=True,
+        default=uuid_lib.uuid4,
+        editable=False,
+        unique=True)
     image = models.ImageField(upload_to="predictions/")
     predicted = models.BooleanField(default=False)
 

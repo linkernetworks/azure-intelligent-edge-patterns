@@ -16,7 +16,7 @@ class NotificationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Notification
-        fields = "__all__"
+        exclude = ['id']
         extra_kwargs = {
             "timestamp": {
                 "required": False

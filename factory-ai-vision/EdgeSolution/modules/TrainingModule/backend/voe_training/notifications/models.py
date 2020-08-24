@@ -3,6 +3,7 @@
 """
 
 import logging
+import uuid as uuid_lib
 
 from django.db import models
 
@@ -16,6 +17,11 @@ class Notification(models.Model):
     """Notification Model
     """
 
+    uuid = models.UUIDField(  # Used by the API to look up the record
+        db_index=True,
+        default=uuid_lib.uuid4,
+        unique=True,
+        editable=False)
     notification_type = models.CharField(max_length=20,
                                          choices=NOTIFICATION_TYPE_CHOICES,
                                          default=NOTIFICATION_TYPES[0])

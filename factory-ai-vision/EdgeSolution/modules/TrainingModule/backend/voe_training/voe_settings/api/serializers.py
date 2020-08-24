@@ -19,8 +19,8 @@ class SettingSerializer(serializers.ModelSerializer):
         """
 
         model = Setting
-        fields = "__all__"
-
+        exclude = ['id']
+    
     def create(self, validated_data):
         """create.
 

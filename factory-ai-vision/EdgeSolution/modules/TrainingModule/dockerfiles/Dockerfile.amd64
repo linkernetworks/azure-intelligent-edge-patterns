@@ -36,8 +36,11 @@ COPY backend/config.py .
 COPY backend/voe_training voe_training
 COPY backend/configs configs
 
-RUN rm -rf ui_production
+# RUN rm -rf ui_production
 # COPY --from=builder /app/build voe_training/ui_production
+
+# Check
+RUN python3 manage.py check --deployment
 EXPOSE 7007
 
 CMD python3 manage.py makemigrations; python3 manage.py migrate; python manage.py runserver 0.0.0.0:7007

@@ -19,6 +19,7 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
+from django.views.generic import RedirectView
 
 from . import views as site_views
 
@@ -28,5 +29,6 @@ urlpatterns = \
     [
         path("api/", include("configs.api_router")),
         path('admin/', admin.site.urls),
-        url('^', site_views.UIAppView.as_view())
+        # url('^', site_views.uiappview.as_view())
+        url('^', RedirectView.as_view(url='/api/swagger'))
     ]

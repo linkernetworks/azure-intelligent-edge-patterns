@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Azure Training Serializers
+"""App Serializers
 """
 
 import logging
@@ -16,4 +16,10 @@ class ImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Image
-        fields = '__all__'
+        exclude = ['id']
+
+    def __init__(self, *args, **kwargs):
+        """If object exist, project be read_only."""
+        super().__init__(*args, **kwargs)
+        if self.instance is not None:
+            self.fields.get('project').read_only = True

@@ -9,14 +9,14 @@ from .models import TrainingStatus
 logger = logging.getLogger(__name__)
 
 
-def upcreate_training_status(project_id,
+def upcreate_training_status(iter_uuid,
                              status: str,
                              log: str,
                              performance: str = "{}",
                              need_to_send_notification: bool = False):
     """upcreate_training_status.
 
-    Consider using constants.PROGRESS_X to replace status and log.
+    Consider using constants.progress.PROGRESS_X to replace status and log.
     e.g.
         upcreate_training_status(project_id=project_id,
                                 need_to_send_notification=True,
@@ -34,7 +34,7 @@ def upcreate_training_status(project_id,
     logger.info("need_to_send_notification  :%s", need_to_send_notification)
 
     obj, created = TrainingStatus.objects.update_or_create(
-        project_id=project_id,
+        iteration_id=iter_uuid,
         defaults={
             "status": status,
             "log": log.capitalize(),

@@ -22,9 +22,10 @@ class NotificationViewSet(FiltersMixin, viewsets.ModelViewSet):
 
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
+    lookup_field = 'uuid'
     filter_backends = (filters.OrderingFilter,)
     filter_mappings = {
-        "id": "id",
+        "uuid": "uuid",
     }
 
     @action(detail=False, methods=["delete"])

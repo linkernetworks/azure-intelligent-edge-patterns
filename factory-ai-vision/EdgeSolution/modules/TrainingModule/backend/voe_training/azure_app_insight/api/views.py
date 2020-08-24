@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """App views"""
 
 from rest_framework.decorators import api_view

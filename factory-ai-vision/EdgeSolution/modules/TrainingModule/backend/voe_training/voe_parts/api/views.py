@@ -25,19 +25,10 @@ class PartViewSet(FiltersMixin, viewsets.ModelViewSet):
 
     queryset = Part.objects.all()
     serializer_class = PartSerializer
+    lookup_field = 'uuid'
     filter_backends = (filters.OrderingFilter,)
     filter_mappings = {
         "project_id": "project_id",
     }
 
-    def destroy(self, request, **kwargs):
-        """destroy.
 
-        only delete image on customvision when api_call
-        """
-        if Part.objects.filter(pk=kwargs['pk']).exists():
-            part_obj = Part.objects.get(pk=kwargs['pk'])
-            part_obj.delete_on_customvision = True
-            part_obj.delete()
-
-        return Response(status=status.HTTP_204_NO_CONTENT)

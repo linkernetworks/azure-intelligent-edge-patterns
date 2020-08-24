@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """App Models."""
 
+import uuid as uuid_lib
 import logging
 
 from django.db import models
@@ -20,6 +21,11 @@ class Setting(models.Model):
     with remote.
     """
 
+    uuid = models.UUIDField(  # Used by the API to look up the record
+        db_index=True,
+        default=uuid_lib.uuid4,
+        editable=False,
+        unique=True)
     name = models.CharField(max_length=100,
                             blank=True,
                             default="",

@@ -18,8 +18,8 @@ class ImageViewSet(FiltersMixin, viewsets.ModelViewSet):
 
     queryset = Image.objects.all()
     serializer_class = ImageSerializer
+    lookup_field = 'uuid'
     filter_backends = (filters.OrderingFilter,)
     filter_mappings = {
-        "is_demo": "is_demo",
         "project_id": "project_id",
     }

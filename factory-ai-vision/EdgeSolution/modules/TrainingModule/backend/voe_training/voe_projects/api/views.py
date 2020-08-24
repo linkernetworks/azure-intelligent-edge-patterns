@@ -13,6 +13,9 @@ from rest_framework.decorators import action
 
 from voe_training.voe_projects.models import Project
 from voe_training.voe_projects.api.serializers import ProjectSerializer
+from voe_training.voe_projects.exceptions import IsTrainingError
+
+from ..utils import train_project_helper
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +29,7 @@ class ProjectViewSet(FiltersMixin, viewsets.ModelViewSet):
 
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    lookup_field = 'uuid'
     filter_backends = (filters.OrderingFilter,)
     filter_mappings = {
         "id": "id",
@@ -40,7 +44,7 @@ class ProjectViewSet(FiltersMixin, viewsets.ModelViewSet):
         return Response({'status': 'ok'})
 
     @action(detail=True, methods=["post"])
-    def train(self, request, pk) -> Response:
+    def train(self, request, uuid) -> Response:
         """train.
 
         Configure button. Train/Export/Deploy a project.
@@ -50,6 +54,14 @@ class ProjectViewSet(FiltersMixin, viewsets.ModelViewSet):
             project_id:
         """
         queryset = self.get_queryset()
-        project_obj = get_object_or_404(queryset, pk=pk)
-        project_obj.train()
-        return Response({'status': 'ok'}, status=status.HTTP_200_OK)
+        get_object_or_404(queryset, uuid=uuid)
+        # project_obj.train(uuid=project_obj.uuid)
+
+        iter_obj = train_project_helper(uuid=uuid)
+        return Response(
+            {
+                'status': 'ok',
+                'iteration_uuid':
+                    iter_obj.uuid  # Change line yapf...
+            },
+            status=status.HTTP_200_OK)

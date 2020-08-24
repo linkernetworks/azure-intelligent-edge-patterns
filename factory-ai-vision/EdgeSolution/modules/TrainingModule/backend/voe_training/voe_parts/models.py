@@ -2,6 +2,7 @@
 """App models
 """
 
+import uuid as uuid_lib
 import logging
 
 from django.db import models
@@ -17,8 +18,17 @@ class Part(models.Model):
     """Part Model
     """
 
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True)
+    uuid = models.UUIDField(  # Used by the API to look up the record
+        db_index=True,
+        default=uuid_lib.uuid4,
+        editable=False,
+        unique=True)
+    project = models.ForeignKey(Project,
+                                on_delete=models.CASCADE,
+                                null=True,
+                                to_field='uuid')
     name = models.CharField(max_length=200)
+
     description = models.CharField(max_length=1000, blank=True, default="")
     name_lower = models.CharField(max_length=200, default=str(name).lower())
     part_type = models.CharField(max_length=20, blank=True, default="Regular")
