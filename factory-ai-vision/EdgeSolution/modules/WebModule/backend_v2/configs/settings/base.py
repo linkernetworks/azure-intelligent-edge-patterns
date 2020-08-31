@@ -145,6 +145,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
+STATIC_ROOT = str(ROOT_DIR / "staticfiles")
 UI_DIR = PROJECT_ROOT / 'ui_production'
 STATICFILES_DIRS = [
     UI_DIR / 'static',
@@ -167,6 +168,19 @@ CHANNEL_LAYERS = {
 IOT_HUB_CONNECTION_STRING = config.IOT_HUB_CONNECTION_STRING
 DEVICE_ID = config.DEVICE_ID
 MODULE_ID = config.MODULE_ID
+
+# =========================================================
+# === Celery                                            ===
+# =========================================================
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TASK_TIME_LIMIT = 5 * 60
+CELERY_TASK_SOFT_TIME_LIMIT = 60
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 print('************************************')
 print('CONFIGURATION:')

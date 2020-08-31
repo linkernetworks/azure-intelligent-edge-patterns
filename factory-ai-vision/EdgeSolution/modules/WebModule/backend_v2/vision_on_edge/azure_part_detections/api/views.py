@@ -15,7 +15,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from ...general.api.serializers import SimpleStatusSerializer
-from ...azure_projects.utils import (train_project_helper,
+from ...azure_projects.tasks import (train_project_helper,
                                      update_train_status_helper)
 from ...azure_training_status.models import TrainingStatus
 from ...azure_training_status.utils import upcreate_training_status
@@ -157,7 +157,7 @@ class PartDetectionViewSet(FiltersMixin, viewsets.ModelViewSet):
                                  **progress.PROGRESS_1_FINDING_PROJECT)
         instance.has_configured = True
         instance.save()
-        train_project_helper(project_id=instance.project.id)
-        update_train_status_helper(project_id=instance.project.id)
+        train_project_helper.apply_async(project_id=instance.project.id)
+        update_train_status_helper.apply_async(project_id=instance.project.id)
         if_trained_then_deploy_helper(part_detection_id=instance.id)
         return Response({'status': 'ok'})

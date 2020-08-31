@@ -1,0 +1,77 @@
+version: '3'
+
+volumes:
+  local_postgres_data: {}
+  local_postgres_data_backups: {}
+
+services:
+  django: &django
+    build:
+      context: .
+      dockerfile: ./dockerfiles/Dockerfile.amd64
+    image: factory_ai_local_django
+    container_name: django
+    depends_on:
+      - postgres
+    environment:
+      - DJANGO_ENV=production
+      - REDIS_URL=redis://redis:6379/0
+      - DBNAME=factory_ai
+      - DBPORT=5432
+      - DBHOST=postgres
+      - DBUSER=factory_ai
+      - DBPASS=factory_ai
+    ports:
+      - "8000:8000"
+    command: start-django
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ../WebDBModule/dockerfiles/Dockerfile.amd64
+    image: factory_ai_local_postgres
+    container_name: postgres
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+      - local_postgres_data_backups:/backups
+    environment:
+      - POSTGRES_DB=factory_ai
+      - POSTGRES_USER=factory_ai
+      - POSTGRES_PASSWORD=factory_ai
+    ports:
+      - "5432:5432"
+  redis:
+    image: redis:5.0
+    container_name: redis
+
+  celeryworker:
+    <<: *django
+    image: factory_ai_local_celeryworker
+    container_name: celeryworker
+    depends_on:
+      - redis
+      - postgres
+    ports: []
+    command: /app/docker-scripts/start-celeryworker
+
+  #celerybeat:
+    #<<: *django
+    #image: factory_ai_local_celerybeat
+    #container_name: celerybeat
+    #depends_on:
+      #- redis
+      #- postgres
+      
+    #ports: []
+    #command: /app/docker-scripts/start-celerybeat
+
+  #flower:
+    #<<: *django
+    #image: factory_ai_local_flower
+    #container_name: flower
+    #environment:
+      #- CELERY_FLOWER_USER=rYOrhUjXWugKRcBQaNZujaeoYYsbMbjb
+      #- CELERY_FLOWER_PASSWORD=mFopLdXGTqT0vLwxEzYH4cJdHcASZV8ocBxvtlSKUvv7JUhDPdmCPWmRKt1UeYWV
+    #ports:
+      #- "5555:5555"
+    #command: /app/docker-scripts/start-celeryflower

@@ -28,18 +28,30 @@ FROM backend-base as backend-production
 
 WORKDIR /app
 
-COPY backend/requirements requirements
+COPY backend_v2/requirements requirements
 RUN pip install -r ./requirements/production-x86.txt
 
-COPY backend/manage.py .
-COPY backend/config.py .
-COPY backend/vision_on_edge vision_on_edge
-COPY backend/configs configs
-RUN python manage.py makemigrations
-RUN python manage.py migrate
+COPY backend_v2/manage.py .
+COPY backend_v2/config.py .
+COPY backend_v2/vision_on_edge vision_on_edge
+COPY backend_v2/configs configs
+COPY backend_v2/docker-scripts docker-scripts
 
 RUN rm -rf ui_production
 COPY --from=builder /app/build vision_on_edge/ui_production
-EXPOSE 8000
 
-CMD python manage.py runserver 0.0.0.0:8000
+COPY backend_v2/docker-scripts/* /app/docker-scripts/
+RUN sed -i 's/\r$//g' /app/docker-scripts/entrypoint
+RUN sed -i 's/\r$//g' /app/docker-scripts/start-django
+RUN sed -i 's/\r$//g' /app/docker-scripts/start-celeryworker
+RUN sed -i 's/\r$//g' /app/docker-scripts/start-celerybeat
+RUN sed -i 's/\r$//g' /app/docker-scripts/start-celeryflower
+RUN chmod +x /app/docker-scripts/entrypoint
+RUN chmod +x /app/docker-scripts/start-django
+RUN chmod +x /app/docker-scripts/start-celeryworker
+RUN chmod +x /app/docker-scripts/start-celerybeat
+RUN chmod +x /app/docker-scripts/start-celeryflower
+RUN cp /app/docker-scripts/* /bin/
+
+WORKDIR /app
+ENTRYPOINT ["entrypoint"]

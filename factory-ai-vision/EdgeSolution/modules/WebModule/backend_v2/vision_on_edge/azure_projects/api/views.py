@@ -19,11 +19,9 @@ from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from ...azure_parts.models import Part
 from ...exceptions.api_exceptions import CustomVisionAccessFailed
-from ...images.models import Image
 from ..models import Project, Task
-from ..utils import (pull_cv_project_helper, train_project_helper,
+from ..tasks import (pull_cv_project_helper, train_project_helper,
                      update_train_status_helper)
 from .serializers import (IterationPerformanceSerializer,
                           ProjectPerformanesSerializer, ProjectSerializer,
@@ -207,9 +205,10 @@ class ProjectViewSet(FiltersMixin, viewsets.ModelViewSet):
             is_partial = True
 
         # Pull Custom Vision Project
-        pull_cv_project_helper(project_id=project_obj.id,
-                               customvision_project_id=customvision_project_id,
-                               is_partial=is_partial)
+        pull_cv_project_helper.apply_async(
+            project_id=project_obj.id,
+            customvision_project_id=customvision_project_id,
+            is_partial=is_partial)
         return Response({"status": "ok"})
 
     @swagger_auto_schema(operation_summary='Train project in background.')
@@ -219,8 +218,8 @@ class ProjectViewSet(FiltersMixin, viewsets.ModelViewSet):
         """
         queryset = self.get_queryset()
         project_obj = get_object_or_404(queryset, pk=pk)
-        train_project_helper(project_id=project_obj.id)
-        update_train_status_helper(project_id=project_obj.id)
+        train_project_helper.apply_async(project_id=project_obj.id)
+        update_train_status_helper.apply_async(project_id=project_obj.id)
         return Response({'status': 'ok'})
 
 
