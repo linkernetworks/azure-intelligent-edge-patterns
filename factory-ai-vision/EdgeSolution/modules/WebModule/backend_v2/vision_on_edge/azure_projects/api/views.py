@@ -41,7 +41,7 @@ class ProjectViewSet(FiltersMixin, viewsets.ModelViewSet):
 
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    filter_backends = (filters.OrderingFilter,)
+    filter_backends = (filters.OrderingFilter, )
     filter_mappings = {
         "is_demo": "is_demo",
     }
@@ -206,9 +206,11 @@ class ProjectViewSet(FiltersMixin, viewsets.ModelViewSet):
 
         # Pull Custom Vision Project
         pull_cv_project_helper.apply_async(
-            project_id=project_obj.id,
-            customvision_project_id=customvision_project_id,
-            is_partial=is_partial)
+            kwargs={
+                "project_id": project_obj.id,
+                "customvision_project_id": customvision_project_id,
+                "is_partial": is_partial
+            })
         return Response({"status": "ok"})
 
     @swagger_auto_schema(operation_summary='Train project in background.')
@@ -229,7 +231,7 @@ class TaskViewSet(FiltersMixin, viewsets.ModelViewSet):
 
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
-    filter_backends = (filters.OrderingFilter,)
+    filter_backends = (filters.OrderingFilter, )
     filter_mappings = {
         "project": "project",
     }

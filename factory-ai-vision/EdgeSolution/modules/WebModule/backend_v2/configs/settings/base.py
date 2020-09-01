@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     #    'vision_on_edge.video_feed',
     'vision_on_edge.locations',
     #    'vision_on_edge.image_predictions',
+    'django_celery_results',
     'vision_on_edge.azure_pd_deploy_status',
     'rest_framework',
     'drf_yasg',
@@ -175,6 +176,7 @@ MODULE_ID = config.MODULE_ID
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"

@@ -52,6 +52,14 @@ services:
       - redis
       - postgres
     ports: []
+    environment:
+      - DJANGO_ENV=production
+      - REDIS_URL=redis://redis:6379/0
+      - DBNAME=factory_ai
+      - DBPORT=5432
+      - DBHOST=postgres
+      - DBUSER=factory_ai
+      - DBPASS=factory_ai
     command: /app/docker-scripts/start-celeryworker
 
   #celerybeat:
