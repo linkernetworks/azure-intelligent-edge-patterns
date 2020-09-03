@@ -10,7 +10,6 @@ Jinja2==2.11.2
 MarkupSafe==1.1.1
 numpy==1.18.4
 paho-mqtt==1.5.0
-protobuf==3.11.3
 requests==2.23.0
 requests-unixsocket==0.2.0
 six==1.14.0
@@ -23,3 +22,5 @@ pyzmq
 opencv-python
 onnx==1.6.0
 shapely
+protobuf
+grpcio
