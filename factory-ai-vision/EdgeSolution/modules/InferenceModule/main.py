@@ -22,6 +22,12 @@ from azure.iot.device import IoTHubModuleClient
 from object_detection import ObjectDetection
 from onnxruntime_predict import ONNXRuntimeObjectDetection
 from utility import get_file_zip, normalize_rtsp
+from sort import *
+
+#create instance of SORT
+mot_tracker = Sort()
+
+
 
 MODEL_DIR = 'model'
 UPLOAD_INTERVAL = 1  # sec
@@ -134,12 +140,29 @@ def draw_confidence_level(img, prediction):
 
     return img
 
+def draw_oid(img, x1, y1, oid):
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 0.7
+    thickness = 2
+    img = cv2.putText(img, str(oid),
+                      (x1+10, y1+20), font, font_scale, (0, 255, 255), thickness)
+    return img
+
+def draw_counter(img, counter):
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 0.7
+    thickness = 2
+    img = cv2.putText(img, 'Objects: '+str(counter),
+                      (img.shape[1]-150, 30), font, font_scale, (0, 255, 255), thickness)
+    return img
+
 
 class ONNXRuntimeModelDeploy(ObjectDetection):
     """Object Detection class for ONNX Runtime
     """
 
-    def __init__(self, model_dir, cam_type="video_file", cam_source="./sample_video/video.mp4"):
+    #def __init__(self, model_dir, cam_type="video_file", cam_source="./sample_video/video.mp4"):
+    def __init__(self, model_dir, cam_type="video_file", cam_source="./sample_video_scenario/1.mov"):
         # def __init__(self, model_dir, cam_type="video_file", cam_source="./mov_bbb.mp4"):
         # def __init__(self, model_dir, cam_type="video_file", cam_source="./sample_video/video_1min.mp4"):
         # def __init__(self, model_dir, cam_type="rtsp", cam_source="rtsp://52.229.36.89:554/media/catvideo.mkv"):
@@ -323,7 +346,8 @@ class ONNXRuntimeModelDeploy(ObjectDetection):
                 break
 
 
-model_dir = './default_model'
+#model_dir = './default_model'
+model_dir = './default_model_scenario/1'
 #model_dir = './default_model_6parts'
 onnx = ONNXRuntimeModelDeploy(model_dir)
 # onnx.start_session()
@@ -611,6 +635,13 @@ def update_prob_threshold():
 
     return 'ok'
 
+_m = (170 - 1487) / (680 - 815)
+_b = 680/2 - _m * 170/2
+def compute_direction(x, y):
+    return _m * x + _b - y
+def is_same_direction(x1, y1, x2, y2):
+    return 0.000000001 < (compute_direction(x1, y1) * compute_direction(x2, y2))
+
 
 @app.route('/video_feed')
 def video_feed():
@@ -618,8 +649,11 @@ def video_feed():
     print(inference)
 
     def _gen():
+        detected = {} #FIXME need to gc
+        counter = 0
         while True:
             img = onnx.last_img.copy()
+            detections = []
             if inference:
                 height, width = img.shape[0], img.shape[1]
                 predictions = onnx.last_prediction
@@ -629,18 +663,63 @@ def video_feed():
                     if onnx.has_aoi:
                         draw_aoi(img, onnx.aoi_info)
 
+                    (x1, y1), (x2, y2) = parse_bbox(
+                        prediction, width, height)
+
+                    if prediction['probability'] > 0.5:
+                        detections.append([x1, y1, x2, y2, prediction['probability']])
+
                     if prediction['probability'] > onnx.threshold:
-                        (x1, y1), (x2, y2) = parse_bbox(
-                            prediction, width, height)
                         if onnx.has_aoi:
                             if not is_inside_aoi(x1, y1, x2, y2, onnx.aoi_info):
                                 continue
+
 
                         img = cv2.rectangle(
                             img, (x1, y1), (x2, y2), (0, 0, 255), 2)
                         img = draw_confidence_level(img, prediction)
 
+            objs = mot_tracker.update(np.array(detections))
+            for obj in objs:
+                x1, y1, x2, y2, oid = obj
+                x1 = int(x1)
+                x2 = int(x2)
+                y1 = int(y1)
+                y2 = int(y2)
+                oid = int(oid)
+                img = cv2.rectangle(
+                    img, (x1, y1), (x2, y2), (0, 255, 255), 2)
+                img = draw_oid(img, x1, y1, oid)
+
+                xc = (x1+x2)/2
+                yc = (y1+y2)/2
+                if oid in detected:
+                    if detected[oid]['expired'] is False:
+                        if not is_same_direction(xc, yc, detected[oid]['xc'], detected[oid]['yc']):
+                            for i in range(15):
+                                print('GET YOU BITCH!!!')
+                                detected[oid]['expired'] = True
+                            print(oid)
+                            print(detected[oid])
+                            print(xc, yc)
+                            counter += 1
+                        else:
+                            detected[oid]['xc'] = xc
+                            detected[oid]['yc'] = xc
+                else:
+                    detected[oid] = {
+                      'xc': xc,
+                      'yc': yc,
+                      'expired': False
+                    }
+
+
+
+            #print(objs)
             time.sleep(0.02)
+            #print(img.shape)
+            img = cv2.line(img, (int(170/2), int(680/2)), (int(1487/2), int(815/2)), (0, 255, 255), 5)
+            img = draw_counter(img, counter)
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + cv2.imencode('.jpg', img)[1].tobytes() + b'\r\n')
     return Response(_gen(),
@@ -672,6 +751,7 @@ def gen():
                 if onnx.has_aoi:
                     if not is_inside_aoi(x1, y1, x2, y2, onnx.aoi_info):
                         continue
+
 
                 img = cv2.rectangle(
                     img, (x1, y1), (x2, y2), (0, 0, 255), 2)
