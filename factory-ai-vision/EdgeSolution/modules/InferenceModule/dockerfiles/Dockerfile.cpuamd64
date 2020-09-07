@@ -52,10 +52,11 @@ COPY object_detection.py ./
 COPY object_detection2.py ./
 COPY onnxruntime_predict.py ./
 COPY utility.py ./
-COPY default_model/cvexport.manifest default_model/
 COPY default_model default_model/
+COPY default_model_scenario default_model_scenario/
 COPY default_model_6parts default_model_6parts/
 COPY sample_video sample_video/
+COPY sample_video_scenario sample_video_scenario/
 COPY arguments.py ./
 COPY exception_handler.py ./
 COPY extension_pb2.py ./
@@ -66,6 +67,7 @@ COPY media_pb2.py ./
 COPY model_wrapper.py ./
 COPY shared_memory.py ./
 COPY server.py ./
+COPY sort.py ./
 RUN chmod 777 sample_video/video.mp4
 RUN chmod 777 default_model
 

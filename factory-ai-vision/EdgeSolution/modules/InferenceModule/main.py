@@ -45,6 +45,7 @@ if len(sys.argv) > 1:
     DEBUG = sys.argv[1] == 'debug'
 else:
     DEBUG = False
+DEBUG=True
 
 def is_edge():
     try:
@@ -296,7 +297,7 @@ class ONNXRuntimeModelDeploy(ObjectDetection):
         self.threshold = self.confidence_max
 
     def update_model(self, model_dir):
-        is_default_model = ('default_model' in model_dir)
+        is_default_model = ('default_model' in model_dir and 'scenario' not in model_dir)
         model = self.load_model(model_dir, is_default_model)
 
         # Protected by Mutex
