@@ -3,6 +3,7 @@ import logging
 import os
 import time
 import sys
+import time
 import threading
 from concurrent import futures
 
@@ -335,6 +336,19 @@ def update_prob_threshold():
         s.detections = []
 
     return 'ok'
+
+# video_feed without zmq
+@app.route('/video_feed')
+def video_feed():
+    cam_id = request.args.get('cam_id')
+    s = stream_manager.get_stream_by_id(cam_id)
+
+    def _gen():
+        while True:
+            time.sleep(0.01)
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + cv2.imencode('.jpg', s.last_drawn_img)[1].tobytes() + b'\r\n')
+    return Response(_gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 def init_topology():
