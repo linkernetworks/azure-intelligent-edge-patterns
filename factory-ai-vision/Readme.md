@@ -1,7 +1,6 @@
 ---
 languages:
-- json
-- python
+- json,python
 - JavaScript
 products:
 - azure Stack
