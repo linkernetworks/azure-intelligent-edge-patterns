@@ -101,13 +101,6 @@ def deploy_worker(part_detection_id):
         logger.error("Not sending any request to inference")
         return
     parts_to_detect = [p.name for p in instance.parts.all()]
-    confidence_min = getattr(instance, "accuracyRangeMin", 30)
-    confidence_max = getattr(instance, "accuracyRangeMax", 80)
-    max_images = getattr(instance, "maxImages", 10)
-    metrics_is_send_iothub = getattr(instance, "metrics_is_send_iothub", False)
-    metrics_accuracy_threshold = getattr(instance, "metrics_accuracy_threshold", 50)
-    metrics_frame_per_minutes = getattr(instance, "metrics_frame_per_minutes", 6)
-    need_retraining = getattr(instance, "needRetraining", False)
 
     # =====================================================
     # 1. Update params                                  ===
@@ -156,19 +149,19 @@ def deploy_worker(part_detection_id):
     requests.get(
         "http://" + instance.inference_module.url + "/update_retrain_parameters",
         params={
-            "is_retrain": need_retraining,
-            "confidence_min": confidence_min,
-            "confidence_max": confidence_max,
-            "max_images": max_images,
+            "is_retrain": instance.needRetraining,
+            "confidence_min": instance.accuracyRangeMin,
+            "confidence_max": instance.accuracyRangeMax,
+            "max_images": instance.maxImages,
         },
         timeout=REQUEST_TIMEOUT,
     )
     requests.get(
         "http://" + instance.inference_module.url + "/update_iothub_parameters",
         params={
-            "is_send": metrics_is_send_iothub,
-            "threshold": metrics_accuracy_threshold,
-            "fpm": metrics_frame_per_minutes,
+            "is_send": instance.metrics_is_send_iothub,
+            "threshold": instance.prob_threshold,
+            "fpm": instance.metrics_frame_per_minutes,
         },
         timeout=REQUEST_TIMEOUT,
     )
