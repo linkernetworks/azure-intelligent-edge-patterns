@@ -19,6 +19,7 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
+from graphene_django.views import GraphQLView
 
 from . import views as site_views
 
@@ -28,6 +29,7 @@ urlpatterns = (
     + [
         path("api/", include("configs.api_router")),
         path("admin/", admin.site.urls),
+        path("graphql/", GraphQLView.as_view(graphiql=settings.DEBUG)),
         url("^", site_views.UIAppView.as_view()),
     ]
 )

@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "vision_on_edge.azure_pd_deploy_status",
     "rest_framework",
     "drf_yasg",
+    "graphene_django",
 ]
 
 MIDDLEWARE = [
@@ -151,6 +152,8 @@ CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}
 REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "vision_on_edge.general.api.exception_handlers.ms_style_exception_handler"
 }
+
+GRAPHENE = {"SCHEMA": "vision_on_edge.schema.schema"}
 
 IOT_HUB_CONNECTION_STRING = config.IOT_HUB_CONNECTION_STRING
 DEVICE_ID = config.DEVICE_ID
