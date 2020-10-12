@@ -16,9 +16,18 @@ install-dev: requirements/local.txt ## install dev dependencies
 	@echo "Installing dependencies dependencies..."
 	@$(PIP) install -r $<
 	@echo "Installing develop dependencies, done."
+
+.PHONY: install-pre-commit
+install-pre-commit: ## install pre-commit hook
 	@echo "Installing pre-commit hook..."
 	@pre-commit install
 	@echo "Installing pre-commit hook, done."
+
+.PHONY: uninstall-pre-commit
+uninstall-pre-commit: ## install pre-commit hook
+	@echo "Unistalling pre-commit hook..."
+	@pre-commit uninstall
+	@echo "Uninstalling pre-commit hook, done."
 
 .PHONY: run
 run:

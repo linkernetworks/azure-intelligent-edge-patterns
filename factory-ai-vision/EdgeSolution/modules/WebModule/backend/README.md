@@ -17,9 +17,10 @@
 
    ```bash
    # start django
-   python manage.py makemigration
    python manage.py migrate
    python manage.py runserver
+   # or
+   make run
    ```
 
 3. Django REST Framework UI
@@ -49,9 +50,10 @@
    export DBPASS="${YOUR_DB_PASSWORD}"
 
    # start django
-   python manage.py makemigration
    python manage.py migrate
    python manage.py runserver
+   # or
+   make run
    ```
 
 ## Developers

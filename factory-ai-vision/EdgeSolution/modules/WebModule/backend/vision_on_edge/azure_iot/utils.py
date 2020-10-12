@@ -21,17 +21,20 @@ def is_edge() -> bool:
         return False
 
 
-def get_iothub_module_client():
+def get_iothub_module_client(raise_exception: bool = False):
+    """get_iothub_module_client.
+
+    Args:
+        raise_exception (bool): raise_exception
+    """
     try:
         iot = IoTHubModuleClient.create_from_edge_environment()
         return iot
-    except KeyError as key_error:
-        logger.error(key_error)
-    except OSError as os_error:
-        logger.error(os_error)
     except Exception:
-        logger.exception("Unexpected error")
-    return None
+        logger.exception("Get IoTHubModuleClient from environment occur error.")
+        if raise_exception:
+            raise
+        return None
 
 
 def inference_module_url() -> str:

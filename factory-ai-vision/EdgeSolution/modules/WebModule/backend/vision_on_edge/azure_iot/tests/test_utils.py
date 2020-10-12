@@ -1,37 +1,69 @@
 """App utility tests.
 """
+
 from unittest import mock
 
 import pytest
+from azure.iot.device import IoTHubModuleClient
 
-from ..utils import inference_module_url, is_edge
+from ..utils import get_iothub_module_client, inference_module_url, is_edge
 
-
-@pytest.mark.fast
-@mock.patch(
-    "vision_on_edge.azure_iot.utils.IoTHubModuleClient",
-    mock.MagicMock(return_value=None),
-)
-def test_is_edge_true():
-    """test_is_edge."""
-    assert is_edge()
-
-
-def test_is_edge_false():
-    """test_is_edge."""
-    assert not is_edge()
+test_data = [(OSError, False), (KeyError, False), (ValueError, False), (None, True)]
 
 
 @pytest.mark.fast
-@mock.patch(
-    "vision_on_edge.azure_iot.utils.IoTHubModuleClient",
-    mock.MagicMock(return_value=None),
+@pytest.mark.parametrize(
+    "error_raised, output",
+    [(OSError, False), (KeyError, False), (ValueError, False), (None, True),],
 )
-def test_inference_module_on_edge():
-    """test_inference_module_on_edge."""
-    assert inference_module_url() == "InferenceModule:5000"
+def test_is_edge(error_raised, output):
+    """test_is_edge."""
+    with mock.patch(
+        "azure.iot.device.IoTHubModuleClient.create_from_edge_environment",
+        mock.MagicMock(side_effect=error_raised),
+    ):
+        assert is_edge() == output
 
 
-def test_inference_module_not_on_edge():
-    """test_inference_module_not_on_edge."""
-    assert inference_module_url() == "localhost:5000"
+@pytest.mark.fast
+@pytest.mark.parametrize(
+    "error_raised, output", [(OSError, False), (KeyError, False), (ValueError, False),],
+)
+def test_get_iothub_module_client(error_raised, output):
+    """test_get_iothub_module_client."""
+    with mock.patch(
+        "azure.iot.device.IoTHubModuleClient.create_from_edge_environment",
+        mock.MagicMock(side_effect=error_raised),
+    ):
+        assert isinstance(get_iothub_module_client(), IoTHubModuleClient) == output
+
+
+@pytest.mark.fast
+@pytest.mark.parametrize("error_raised", [OSError, KeyError, ValueError])
+def test_get_iothub_module_client_error(error_raised):
+    """test_get_iothub_module_client."""
+    with mock.patch(
+        "azure.iot.device.IoTHubModuleClient.create_from_edge_environment",
+        mock.MagicMock(side_effect=error_raised),
+    ):
+        with pytest.raises(error_raised):
+            get_iothub_module_client(raise_exception=True)
+
+
+@pytest.mark.fast
+@pytest.mark.parametrize(
+    "error_raised, output",
+    [
+        (OSError, "localhost:5000"),
+        (KeyError, "localhost:5000"),
+        (ValueError, "localhost:5000"),
+        (None, "InferenceModule:5000"),
+    ],
+)
+def test_inference_module(error_raised, output):
+    """test_is_edge."""
+    with mock.patch(
+        "azure.iot.device.IoTHubModuleClient.create_from_edge_environment",
+        mock.MagicMock(side_effect=error_raised),
+    ):
+        assert inference_module_url() == output
