@@ -17,7 +17,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from ...azure_pd_deploy_status.models import DeployStatus
-from ...azure_projects.utils import TRAINING_MANAGER
+from ...azure_projects.helpers import TRAINING_MANAGER
 from ...azure_training_status import progress
 from ...azure_training_status.utils import upcreate_training_status
 from ...general.api.serializers import (

@@ -20,6 +20,7 @@ from ..azure_settings.models import Setting
 from .exceptions import (
     ProjectCannotChangeDemoError,
     ProjectCustomVisionError,
+    ProjectCustomVisionNotFoundError,
     ProjectResetWithoutNameError,
     ProjectTrainWithoutParts,
     ProjectWithoutSettingError,
@@ -228,6 +229,33 @@ class Project(models.Model):
             raise ProjectCustomVisionError
         trainer = self.setting.get_trainer_obj()
         trainer.delete_tag(project_id=self.customvision_id, tag_id=tag_id)
+
+    def is_pullable(self, customvision_id: str, raise_exception: bool = False) -> bool:
+        """is_pullable.
+
+        Args:
+            customvision_id: project customvision_id to pull
+            raise_exception (bool): raise_exception
+
+        Returns:
+            bool:
+        """
+        if self.is_demo:
+            if raise_exception:
+                raise ProjectCannotChangeDemoError
+            return False
+        if not self.setting or not self.setting.is_trainer_valid:
+            if raise_exception:
+                raise SettingCustomVisionAccessFailed
+            return False
+        trainer = self.setting.get_trainer_obj()
+        try:
+            trainer.get_project(customvision_id)
+            return True
+        except Exception as err:
+            if raise_exception:
+                raise ProjectCustomVisionNotFoundError(detail=customvision_id) from err
+            return False
 
     def is_trainable(self, raise_exception: bool = False) -> bool:
         """is_trainable.

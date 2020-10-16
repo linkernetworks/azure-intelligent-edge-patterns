@@ -25,8 +25,8 @@ from ...general.api.serializers import (
 )
 from ...general.shortcuts import drf_get_object_or_404
 from ..exceptions import ProjectWithoutSettingError
+from ..helpers import TRAINING_MANAGER, pull_cv_project_helper
 from ..models import Project, Task
-from ..utils import TRAINING_MANAGER, pull_cv_project_helper
 from .serializers import (
     IterationPerformanceSerializer,
     ProjectPerformanesSerializer,
@@ -194,20 +194,24 @@ class ProjectViewSet(FiltersMixin, viewsets.ModelViewSet):
     @action(detail=True, methods=["get"])
     def pull_cv_project(self, request, pk=None) -> Response:
         """pull_cv_project."""
+
+        # Get objects
         queryset = self.get_queryset()
         project_obj = drf_get_object_or_404(queryset, pk=pk)
 
-        # Check Customvision Project id
+        # Query Parameter: customvision_project_id
         customvision_project_id = request.query_params.get("customvision_project_id")
         logger.info("Project customvision_id: %s", {customvision_project_id})
 
-        # Check Partial
+        # Query Parameter: partial
         try:
             is_partial = bool(strtobool(request.query_params.get("partial")))
         except Exception:
             is_partial = True
 
-        # Pull Custom Vision Project
+        # Raise APIException if not pullable.
+        project_obj.is_pullable(raise_exception=True)
+
         pull_cv_project_helper(
             project_id=project_obj.id,
             customvision_project_id=customvision_project_id,
