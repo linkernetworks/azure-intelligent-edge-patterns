@@ -10,6 +10,8 @@ RUN yarn install --production
 COPY ui/tsconfig.json .
 COPY ui/src/ ./src
 COPY ui/public/ ./public
+COPY ui/scripts/ ./scripts
+COPY ui/config/ ./config
 RUN yarn build
 
 # =========================================================
