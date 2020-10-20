@@ -18,7 +18,6 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 import * as R from 'ramda';
 import { useBoolean } from '@uifabric/react-hooks';
-import moment from 'moment';
 
 import { State } from 'RootStateType';
 import { LiveViewContainer } from './LiveViewContainer';
@@ -54,6 +53,7 @@ import { Insights } from './DeploymentInsights';
 import { Instruction } from './Instruction';
 import { selectAllImages } from '../store/imageSlice';
 import { initialProjectData } from '../store/project/projectReducer';
+import { fromNow } from '../utils/fromNow';
 
 const { palette } = getTheme();
 
@@ -214,7 +214,7 @@ export const Deployment: React.FC = () => {
                 <Stack tokens={{ childrenGap: 10 }} styles={{ root: { minWidth: '200px' } }}>
                   <Text variant="xLarge">{name}</Text>
                   <Text styles={{ root: { color: palette.neutralSecondary } }}>
-                    Started running <b>{moment(deployTimeStamp).fromNow()}</b>
+                    Started running <b>{fromNow(new Date(deployTimeStamp))}</b>
                   </Text>
                 </Stack>
                 <Dropdown
