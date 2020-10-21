@@ -764,6 +764,13 @@ def predict_module_url():
         return "localhost:9000"
 
 
+def predict_module_url():
+    if is_edge():
+        return "PredictModule:9000"
+    else:
+        return "localhost:9000"
+
+
 def draw_aoi(img, aoi_info):
     for aoi_area in aoi_info:
         aoi_type = aoi_area["type"]

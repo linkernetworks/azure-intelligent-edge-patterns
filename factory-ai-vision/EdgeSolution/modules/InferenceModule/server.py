@@ -410,6 +410,7 @@ def get_recommended_total_fps():
     """
     return {"fps": int(onnx.get_recommended_total_frame_rate())}
 
+
 @app.get("/recommended_fps")
 def recommended_fps():
     return {"fps": int(onnx.get_recommended_total_frame_rate())}
@@ -450,7 +451,8 @@ class DisplayManager:
 
 @app.get("/video_feed")
 async def video_feed(cam_id: str):
-    if NO_DISPLAY == "true" : return 'ok'
+    if NO_DISPLAY == "true":
+        return 'ok'
     stream = stream_manager.get_stream_by_id(cam_id)
     if stream:
         print("[INFO] Preparing Video Feed for stream %s" % cam_id, flush=True)

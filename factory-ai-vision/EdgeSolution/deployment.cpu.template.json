@@ -190,7 +190,52 @@
                     }
                   },
                   "PortBindings": {
-                    "9000/tcp": [{
+                    <<
+                    << << < HEAD ===
+                    === =
+                    "5000/tcp": [{
+                      "HostPort": "5000"
+                    }],
+                    "5558/tcp": [{
+                      "HostPort": "5558"
+                    }],
+                    "44000/tcp": [{
+                      "HostPort": "44000"
+                    }]
+                  },
+                  "IpcMode": "host",
+                  "runtime": "runc"
+                }
+              }
+            }
+          },
+          "PredictModule": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "env": {
+              "IOTHUB_CONNECTION_STRING": {
+                "value": "$IOTHUB_CONNECTION_STRING"
+              },
+              "LVA_MODE": {
+                "value": "$LVA_MODE"
+              }
+            },
+            "settings": {
+              "image": "${MODULES.PredictModule.cpuamd64}",
+              "createOptions": {
+                "HostConfig": {
+                  "LogConfig": {
+                    "Type": "",
+                    "Config": {
+                      "max-size": "10m",
+                      "max-file": "10"
+                    }
+                  },
+                  "PortBindings": {
+                    >>>
+                    >>> > separate inference module "9000/tcp": [{
                       "HostPort": "9000"
                     }]
                   },
