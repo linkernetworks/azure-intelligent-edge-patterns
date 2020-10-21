@@ -5,6 +5,7 @@ import json
 import logging
 import logging.config
 import os
+import requests
 import socket
 import sys
 import threading
@@ -187,6 +188,11 @@ def update_model(request_body: UploadModelBody):
 
         logger.info("Got Model URI %s", request_body.model_uri)
 
+        r = requests.post(
+            "http://" + predict_module_url() + "/update_model",
+            json={"model_uri": model_uri}
+        )
+
         # FIXME webmodule didnt send set detection_mode as Part Detection sometimes.
         # workaround
         onnx.set_detection_mode("PD")
@@ -213,6 +219,12 @@ def update_model(request_body: UploadModelBody):
 
     if request_body.model_dir:
         logger.info("Got Model DIR %s", request_body.model_dir)
+
+        r = requests.post(
+            "http://" + predict_module_url() + "/update_model",
+            json={"model_dir": model_dir}
+        )
+
         onnx.set_is_scenario(True)
         onnx.update_model(request_body.model_dir)
         logger.info("Update Finished ...")
@@ -552,6 +564,12 @@ def benchmark():
     logger.info("============= BenchMarking (End) ==================")
     onnx.set_max_total_frame_rate(max_total_frame_rate)
 
+
+def predict_module_url():
+    if is_edge():
+        return "PredictModule:9000"
+    else:
+        return "localhost:9000"
 
 def cvcapture_url():
     if is_edge():
