@@ -24,5 +24,5 @@ LOGGING_CONFIG_DEV = {
             "datefmt": "%d-%b-%Y %H:%M:%S",
         }
     },
-    "root": {"handlers": ["console"], "level": "DEBUG"},
+    "root": {"handlers": ["console"], "level": "WARNING"},
 }
