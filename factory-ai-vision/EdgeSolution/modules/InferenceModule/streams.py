@@ -448,6 +448,8 @@ class Stream:
 
         self.mutex.release()
 
+        self.mutex.release()
+
     def get_mode(self):
         return self.model.detection_mode
 
