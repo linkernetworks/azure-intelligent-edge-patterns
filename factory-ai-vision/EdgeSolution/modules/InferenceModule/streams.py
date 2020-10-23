@@ -46,6 +46,7 @@ except:
 
 logger = logging.getLogger(__name__)
 
+
 class Stream:
     def __init__(
         self,
@@ -170,8 +171,10 @@ class Stream:
             else:
                 cam_source = self.cam_source
                 if cam_source.startswith(RTSPSIM_PREFIX):
-                    cam_source = "videos" + self.cam_source.split(RTSPSIM_PREFIX)[1]
-                logger.warning('{} VideoCapture source: {}'.format(t,cam_source))
+                    cam_source = "videos" + \
+                        self.cam_source.split(RTSPSIM_PREFIX)[1]
+                logger.warning(
+                    '{} VideoCapture source: {}'.format(t, cam_source))
                 try:
                     self.cam.release()
                 except:
@@ -181,7 +184,8 @@ class Stream:
                     self.cam = cv2.VideoCapture(cam_source)
                 except Exception as e:
                     logger.warning(e)
-                logger.warning('{} VideoCapture finish'.format(threading.current_thread()))
+                logger.warning('{} VideoCapture finish'.format(
+                    threading.current_thread()))
             self.mutex.release()
 
             if self.cam.isOpened():
@@ -193,11 +197,10 @@ class Stream:
                 cnt += 1
                 is_ok, img = self.cam.read()
                 if is_ok:
-                    #if height >= self.IMG_HEIGHT:
+                    # if height >= self.IMG_HEIGHT:
                     #    height = self.IMG_HEIGHT
                     #    ratio = self.IMG_HEIGHT / img.shape[0]
                     #    width = int(img.shape[1] * ratio + 0.000001)
-
 
                     self.last_read = img
                     self.last_update = time.time()
@@ -210,12 +213,14 @@ class Stream:
 
             logger.warning("Stream {} finished".format(self.cam_id))
             self.cam.release()
+
         def run_predict(self):
             cnt = 0
             t = threading.current_thread()
             while getattr(t, "cam_is_alive", True):
                 if self.last_read is None:
-                    logger.warning("stream {} img not ready".format(self.cam_id))
+                    logger.warning(
+                        "stream {} img not ready".format(self.cam_id))
                     time.sleep(1)
                     continue
                 if self.last_send == self.last_update:
@@ -234,12 +239,13 @@ class Stream:
                 self.predict(self.last_read)
                 self.last_send = self.last_update
                 time.sleep(1 / self.frameRate)
-        
-        self.opencv_thread = threading.Thread(target=_new_streaming, args=(self,), daemon=True)
-        self.predict_thread = threading.Thread(target=run_predict, args=(self,), daemon=True)
+
+        self.opencv_thread = threading.Thread(
+            target=_new_streaming, args=(self,), daemon=True)
+        self.predict_thread = threading.Thread(
+            target=run_predict, args=(self,), daemon=True)
         self.opencv_thread.start()
         self.predict_thread.start()
-
 
     def start_zmq(self):
         def run(self):
@@ -256,7 +262,8 @@ class Stream:
                 cnt += 1
                 if cnt % 30 == 1:
                     logging.info(
-                        "send through channel {}".format(bytes(self.cam_id, "utf-8"))
+                        "send through channel {}".format(
+                            bytes(self.cam_id, "utf-8"))
                     )
                 # self.mutex.acquire()
                 # FIXME may find a better way to deal with encoding
@@ -286,12 +293,11 @@ class Stream:
             cam_source = "videos" + self.cam_source.split(RTSPSIM_PREFIX)[1]
 
         logger.warning('VideoCapture source: {}'.format(cam_source))
-        
+
         self.mutex.acquire()
         self.cam.release()
         self.cam = cv2.VideoCapture(cam_source)
         self.mutex.release()
-
 
         # Protected by Mutex
         # self.mutex.acquire()
@@ -339,7 +345,8 @@ class Stream:
                 time.sleep(0.03)
                 self.start_opencv()
             else:
-                self._update_instance(normalize_rtsp(cam_source), str(frameRate))
+                self._update_instance(
+                    normalize_rtsp(cam_source), str(frameRate))
 
         self.has_aoi = has_aoi
         self.aoi_info = aoi_info
@@ -429,7 +436,7 @@ class Stream:
         else:
             self.scenario = None
             self.scenario_type = self.model.detection_mode
-        
+
         self.mutex.release()
 
     def get_mode(self):
@@ -548,7 +555,8 @@ class Stream:
         # prediction
         # self.mutex.acquire()
         data = image.tobytes()
-        res = requests.post('http://'+predict_module_url()+'/predict', data=data)
+        res = requests.post(
+            'http://'+predict_module_url()+'/predict', data=data)
         predictions = json.loads(res.json()[0])['predictions']
         inf_time = json.loads(res.json()[0])['inf_time']
 
@@ -560,7 +568,8 @@ class Stream:
         # self.mutex.release()
 
         # check whether it's the tag we want
-        predictions = list(p for p in predictions if p["tagName"] in self.model.parts)
+        predictions = list(
+            p for p in predictions if p["tagName"] in self.model.parts)
 
         # check whether it's inside aoi (if has)
         if self.has_aoi:
@@ -581,7 +590,8 @@ class Stream:
             self.process_send_message_to_iothub(predictions)
 
         # check whether it's larger than threshold
-        predictions = list(p for p in predictions if p["probability"] >= self.threshold)
+        predictions = list(
+            p for p in predictions if p["probability"] >= self.threshold)
 
         # update last_prediction_count
         _last_prediction_count = {}
@@ -618,7 +628,8 @@ class Stream:
         if self.scenario:
             # print('drawing...', flush=True)
             # print(self.scenario, flush=True)
-            self.last_drawn_img = self.scenario.draw_counter(self.last_drawn_img)
+            self.last_drawn_img = self.scenario.draw_counter(
+                self.last_drawn_img)
             # FIXME close this
             # self.scenario.draw_constraint(self.last_drawn_img)
             if self.get_mode() == "DD":
@@ -647,7 +658,8 @@ class Stream:
                     tag = prediction["tagName"]
                     height, width = img.shape[0], img.shape[1]
                     (x1, y1), (x2, y2) = parse_bbox(prediction, width, height)
-                    labels = json.dumps([{"x1": x1, "x2": x2, "y1": y1, "y2": y2}])
+                    labels = json.dumps(
+                        [{"x1": x1, "x2": x2, "y1": y1, "y2": y2}])
                     jpg = cv2.imencode(".jpg", img)[1].tobytes()
 
                     send_retrain_image_to_webmodule(
@@ -691,7 +703,8 @@ class Stream:
             for prediction in predictions:
                 if prediction["probability"] > self.threshold:
                     (x1, y1), (x2, y2) = parse_bbox(prediction, width, height)
-                    cv2.rectangle(img, (x1, max(y1, 15)), (x2, y2), (255, 255, 255), 1)
+                    cv2.rectangle(img, (x1, max(y1, 15)),
+                                  (x2, y2), (255, 255, 255), 1)
                     draw_confidence_level(img, prediction)
 
         self.last_drawn_img = img
@@ -726,6 +739,7 @@ def web_module_url():
         return "WebModule:8000"
     else:
         return "localhost:8000"
+
 
 def predict_module_url():
     if is_edge():
@@ -766,9 +780,11 @@ def is_inside_aoi(x1, y1, x2, y2, aoi_info):
 
         if aoi_area["type"] == "BBox":
             if (
-                (label["x1"] <= x1 <= label["x2"]) or (label["x1"] <= x2 <= label["x2"])
+                (label["x1"] <= x1 <= label["x2"]) or (
+                    label["x1"] <= x2 <= label["x2"])
             ) and (
-                (label["y1"] <= y1 <= label["y2"]) or (label["y1"] <= y2 <= label["y2"])
+                (label["y1"] <= y1 <= label["y2"]) or (
+                    label["y1"] <= y2 <= label["y2"])
             ):
                 return True
 
