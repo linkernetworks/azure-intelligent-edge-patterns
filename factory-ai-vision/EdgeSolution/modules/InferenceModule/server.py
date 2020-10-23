@@ -387,16 +387,16 @@ def update_prob_threshold(prob_threshold: int):
     return "ok"
 
 
-@app.get("/get_recommended_fps")
-def get_recommended_fps(number_of_cameras: int):
-    """get_recommended_fps.
+# @app.get("/recommended_fps")
+# def get_recommended_fps(number_of_cameras: int):
+#     """get_recommended_fps.
 
-    Args:
-        number_of_cameras (int): number_of_cameras
-    """
-    return {'fps': int(onnx.get_recommended_frame_rate(number_of_cameras))}
+#     Args:
+#         number_of_cameras (int): number_of_cameras
+#     """
+#     return {'fps': int(onnx.get_recommended_frame_rate(number_of_cameras))}
 
-@app.get("/get_recommended_total_fps")
+@app.get("/recommended_fps")
 def get_recommended_total_fps():
     """get_recommended_fps.
 
@@ -553,6 +553,7 @@ def benchmark():
         threads[i].join()
     t1 = time.time()
     # print(t1-t0)
+    stream_manager.update_streams([])
 
     discount = 0.75
     max_total_frame_rate = discount * (n_images * n_threads) / (t1-t0)

@@ -61,9 +61,9 @@ class StreamManager(object):
 
         origin_stream_ids = list([stream_id for stream_id in self.streams])
 
-        logger.info("==== Update Streams ====")
-        logger.info("origin: %s", origin_stream_ids)
-        logger.info("new   : %s", stream_ids)
+        logger.warning("==== Update Streams ====")
+        logger.warning("origin: %s", origin_stream_ids)
+        logger.warning("new   : %s", stream_ids)
 
         to_delete = []
         to_update = []
@@ -77,8 +77,8 @@ class StreamManager(object):
             if (stream_id in stream_ids) and (stream_id not in origin_stream_ids):
                 to_add.append(stream_id)
 
-        logger.info("To Delete : %s", to_delete)
-        logger.info("To Add    : %s", to_add)
+        logger.warning("To Delete : %s", to_delete)
+        logger.warning("To Add    : %s", to_add)
 
         for stream_id in to_delete:
             # FIXME
