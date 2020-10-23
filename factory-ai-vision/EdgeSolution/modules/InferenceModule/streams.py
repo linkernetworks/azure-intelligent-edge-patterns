@@ -167,8 +167,17 @@ class Stream:
                 cam_source = self.cam_source
                 if cam_source.startswith(RTSPSIM_PREFIX):
                     cam_source = "videos" + self.cam_source.split(RTSPSIM_PREFIX)[1]
-                logger.warning('VideoCapture source: {}'.format(cam_source))
-                self.cam = cv2.VideoCapture(cam_source)
+                logger.warning('{} VideoCapture source: {}'.format(threading.current_thread(),cam_source))
+                try:
+                    self.cam.release()
+                except:
+                    logger.warning('release cam fail')
+
+                try:
+                    self.cam = cv2.VideoCapture(cam_source)
+                except Exception as e:
+                    logger.warning(e)
+                logger.warning('{} VideoCapture finish'.format(threading.current_thread()))
             self.mutex.release()
 
             if self.cam.isOpened():
@@ -268,7 +277,7 @@ class Stream:
         cam_source = self.cam_source
         if cam_source.startswith(RTSPSIM_PREFIX):
             cam_source = "videos" + self.cam_source.split(RTSPSIM_PREFIX)[1]
-            
+
         logger.warning('VideoCapture source: {}'.format(cam_source))
         
         self.mutex.acquire()
@@ -299,11 +308,13 @@ class Stream:
 
         # if self.cam_type == cam_type and self.cam_source == cam_source:
         #    return
+        self.mutex.acquire()
         if (
             self.cam_source != cam_source
             or round(self.frameRate) != round(frameRate)
             or self.lva_mode != lva_mode
         ):
+            logger.warning('update parameters')
             self.cam_source = cam_source
             self.frameRate = frameRate
             self.lva_mode = lva_mode
@@ -410,6 +421,8 @@ class Stream:
         else:
             self.scenario = None
             self.scenario_type = self.model.detection_mode
+        
+        self.mutex.release()
 
     def get_mode(self):
         return self.model.detection_mode
