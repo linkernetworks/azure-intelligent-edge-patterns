@@ -74,6 +74,9 @@ class Stream:
         self.cam_is_alive = True
         self.last_display_keep_alive = None
 
+        self.opencv_thread = None
+        self.predict_thread = None
+
         self.IMG_WIDTH = 960
         self.IMG_HEIGHT = 540
         self.image_shape = [540, 960]
@@ -159,6 +162,7 @@ class Stream:
     def start_opencv(self):
         def _new_streaming(self):
             cnt = 0
+            t = threading.current_thread()
             self.cam_is_alive = True
             self.mutex.acquire()
             if self.cam_source == "0":
@@ -167,7 +171,7 @@ class Stream:
                 cam_source = self.cam_source
                 if cam_source.startswith(RTSPSIM_PREFIX):
                     cam_source = "videos" + self.cam_source.split(RTSPSIM_PREFIX)[1]
-                logger.warning('{} VideoCapture source: {}'.format(threading.current_thread(),cam_source))
+                logger.warning('{} VideoCapture source: {}'.format(t,cam_source))
                 try:
                     self.cam.release()
                 except:
@@ -185,7 +189,7 @@ class Stream:
                 if cam_fps > 0.0 and cam_fps < self.frameRate:
                     self.frameRate = cam_fps
 
-            while self.cam_is_alive:
+            while getattr(t, "cam_is_alive", True):
                 cnt += 1
                 is_ok, img = self.cam.read()
                 if is_ok:
@@ -208,7 +212,8 @@ class Stream:
             self.cam.release()
         def run_predict(self):
             cnt = 0
-            while self.cam_is_alive:
+            t = threading.current_thread()
+            while getattr(t, "cam_is_alive", True):
                 if self.last_read is None:
                     logger.warning("stream {} img not ready".format(self.cam_id))
                     time.sleep(1)
@@ -230,8 +235,10 @@ class Stream:
                 self.last_send = self.last_update
                 time.sleep(1 / self.frameRate)
         
-        threading.Thread(target=_new_streaming, args=(self,), daemon=True).start()
-        threading.Thread(target=run_predict, args=(self,), daemon=True).start()
+        self.opencv_thread = threading.Thread(target=_new_streaming, args=(self,), daemon=True)
+        self.predict_thread = threading.Thread(target=run_predict, args=(self,), daemon=True)
+        self.opencv_thread.start()
+        self.predict_thread.start()
 
 
     def start_zmq(self):
@@ -281,6 +288,7 @@ class Stream:
         logger.warning('VideoCapture source: {}'.format(cam_source))
         
         self.mutex.acquire()
+        self.cam.release()
         self.cam = cv2.VideoCapture(cam_source)
         self.mutex.release()
 
@@ -516,7 +524,11 @@ class Stream:
             # res = requests.get(
             #     "http://CVCaptureModule:9000/delete_stream/" + self.cam_id
             # )
-            self.cam_is_alive = False
+            if self.opencv_thread is not None:
+                self.opencv_thread.cam_is_alive = False
+            if self.predict_thread is not None:
+                self.predict_thread.cam_is_alive = False
+            # self.cam_is_alive = False
         else:
             gm.invoke_graph_instance_deactivate(self.cam_id)
         logger.info("Deactivate stream {}".format(self.cam_id))
