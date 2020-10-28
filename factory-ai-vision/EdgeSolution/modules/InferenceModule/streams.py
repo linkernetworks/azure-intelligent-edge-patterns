@@ -247,6 +247,13 @@ class Stream:
         self.opencv_thread.start()
         self.predict_thread.start()
 
+        self.opencv_thread = threading.Thread(
+            target=_new_streaming, args=(self,), daemon=True)
+        self.predict_thread = threading.Thread(
+            target=run_predict, args=(self,), daemon=True)
+        self.opencv_thread.start()
+        self.predict_thread.start()
+
     def start_zmq(self):
         def run(self):
 
