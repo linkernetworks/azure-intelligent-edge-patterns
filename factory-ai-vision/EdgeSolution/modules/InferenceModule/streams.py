@@ -247,13 +247,6 @@ class Stream:
         self.opencv_thread.start()
         self.predict_thread.start()
 
-        self.opencv_thread = threading.Thread(
-            target=_new_streaming, args=(self,), daemon=True)
-        self.predict_thread = threading.Thread(
-            target=run_predict, args=(self,), daemon=True)
-        self.opencv_thread.start()
-        self.predict_thread.start()
-
     def start_zmq(self):
         def run(self):
 
@@ -443,6 +436,8 @@ class Stream:
         else:
             self.scenario = None
             self.scenario_type = self.model.detection_mode
+
+        self.mutex.release()
 
         self.mutex.release()
 
@@ -748,6 +743,13 @@ def web_module_url():
         return "WebModule:8000"
     else:
         return "localhost:8000"
+
+
+def predict_module_url():
+    if is_edge():
+        return "PredictModule:9000"
+    else:
+        return "localhost:9000"
 
 
 def predict_module_url():
