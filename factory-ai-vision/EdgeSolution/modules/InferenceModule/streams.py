@@ -446,7 +446,15 @@ class Stream:
 
         self.mutex.release()
 
-    def get_mode(self):
+
+<< << << < HEAD
+== == == =
+   self.mutex.release()
+
+    self.mutex.release()
+
+>>>>>> > 36e386edc7df920e9bcd6ce4b3d4c6c01b757707
+   def get_mode(self):
         return self.model.detection_mode
 
     def update_detection_status(self, predictions):
