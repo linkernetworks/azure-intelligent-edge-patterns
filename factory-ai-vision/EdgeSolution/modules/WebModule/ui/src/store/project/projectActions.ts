@@ -176,7 +176,7 @@ export const thunkPostProject = (projectData: Omit<ProjectData, 'id'>): ProjectT
           normalizeServerToClient(data, projectData.recomendedFps, projectData.totalRecomendedFps),
         ),
       );
-      return data.id;
+      return void 0;
     })
     .catch((err) => {
       dispatch(postProjectFail(err));

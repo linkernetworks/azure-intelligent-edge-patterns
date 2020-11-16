@@ -88,6 +88,7 @@ const projectReducer = (state = initialState, action: ProjectActionTypes): Proje
         isLoading: false,
         data: action.data,
         originData: action.data,
+        status: Status.WaitTraining,
       };
     case POST_PROJECT_FALIED:
       return { ...state, isLoading: false, error: action.error };
