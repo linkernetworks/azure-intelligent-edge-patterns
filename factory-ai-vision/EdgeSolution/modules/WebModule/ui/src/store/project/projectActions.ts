@@ -164,6 +164,7 @@ export const thunkPostProject = (projectData: Omit<ProjectData, 'id'>): ProjectT
       fps: projectData.setFpsManually ? parseFloat(projectData.fps) : projectData.recomendedFps,
       inference_protocol: projectData.inferenceProtocol,
       disable_video_feed: projectData.disableVideoFeed,
+      has_configured: true,
     },
     method: isProjectEmpty ? 'POST' : 'PUT',
     headers: {
