@@ -25,6 +25,7 @@ from vision_on_edge.images.api import views as image_views
 from vision_on_edge.inference_modules.api import views as inference_module_views
 from vision_on_edge.locations.api import views as location_views
 from vision_on_edge.notifications.api import views as notifications_views
+from vision_on_edge.prediction_modules.api import views as prediction_module_views
 
 # from vision_on_edge.relabeling.api import views as relabel_views
 from vision_on_edge.streams.api import views as stream_views
@@ -54,6 +55,7 @@ router.register("parts", azure_part_views.PartViewSet)
 router.register("projects", azure_projects_views.ProjectViewSet)
 router.register("settings", azure_setting_views.SettingViewSet)
 router.register("training_status", azure_training_status_views.TrainingStatusViewSet)
+router.register("prediction_modules", prediction_module_views.PredictionModuleViewSet)
 
 urlpatterns = router.urls
 
