@@ -39,6 +39,15 @@ const navLinks: INavLink[] = [
       },
     },
   },
+  {
+    name: 'Deployment',
+    url: '/deployment',
+    iconProps: {
+      imageProps: {
+        src: '/icons/objects.svg',
+      },
+    },
+  },
 ];
 
 export const LeftNav: React.FC = () => {
