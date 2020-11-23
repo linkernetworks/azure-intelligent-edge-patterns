@@ -40,11 +40,20 @@ const navLinks: INavLink[] = [
     },
   },
   {
+    name: 'Models',
+    url: '/models',
+    iconProps: {
+      imageProps: {
+        src: '/icons/models.svg',
+      },
+    },
+  },
+  {
     name: 'Deployment',
     url: '/deployment',
     iconProps: {
       imageProps: {
-        src: '/icons/objects.svg',
+        src: '/icons/deployment.svg',
       },
     },
   },

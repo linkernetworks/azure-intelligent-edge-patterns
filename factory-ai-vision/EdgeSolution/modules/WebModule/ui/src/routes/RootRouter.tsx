@@ -13,6 +13,7 @@ import { PartDetails } from '../pages/PartDetails';
 import { Parts } from '../pages/Parts';
 import { Images } from '../pages/Images';
 import { DeploymentPage } from '../pages/Deployment';
+import { Models } from '../pages/Models';
 
 export const RootRouter: FC = () => {
   const projectHasConfiged = useSelector((state: State) => state.project.status !== Status.None);
@@ -20,6 +21,7 @@ export const RootRouter: FC = () => {
   return (
     <Switch>
       <Route path="/deployment" component={DeploymentPage} />
+      <Route path="/models" component={Models} />
       <Route path="/cameras/detail" component={CameraDetails} />
       <Route path="/cameras" component={Cameras} />
       <Route path="/parts/detail" component={PartDetails} />
