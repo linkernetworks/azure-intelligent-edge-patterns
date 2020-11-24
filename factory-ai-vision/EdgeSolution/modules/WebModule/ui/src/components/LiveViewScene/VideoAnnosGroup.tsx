@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { VideoAnno } from '../../store/shared/BaseShape';
 import { isBBox } from '../../store/shared/Box2d';
@@ -32,10 +32,14 @@ export const VideoAnnosGroup: React.FC<VideoAnnosGroupProps> = ({
   needMask,
   color = 'white',
 }): JSX.Element => {
+  const enhanceSortVideoAnnos = useMemo(() => {
+    return videoAnnos;
+  }, [videoAnnos]);
+
   return (
     <>
       {needMask && <Mask width={imgWidth} height={imgHeight} holes={videoAnnos} visible={visible} />}
-      {videoAnnos.map((e) => {
+      {enhanceSortVideoAnnos.map((e, videoAnnoIdx) => {
         if (isBBox(e)) {
           return (
             <Box
@@ -77,6 +81,8 @@ export const VideoAnnosGroup: React.FC<VideoAnnosGroupProps> = ({
               handleChange={(idx, vertex) => updateVideoAnno(e.id, { idx, vertex })}
               boundary={{ x1: 0, y1: 0, x2: imgWidth, y2: imgHeight }}
               color={color}
+              isLine
+              lineIdx={videoAnnoIdx + 1}
             />
           );
         }

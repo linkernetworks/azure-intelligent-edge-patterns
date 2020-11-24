@@ -1,7 +1,7 @@
 import Konva from 'konva';
 import { KonvaEventObject } from 'konva/types/Node';
 import React, { useMemo, useRef, useState } from 'react';
-import { Group, Line, Circle, Path } from 'react-konva';
+import { Group, Line, Circle, Path, Text } from 'react-konva';
 import { PolygonLabel } from '../../store/type';
 import { CreatingState } from '../../store/videoAnnoSlice';
 
@@ -13,6 +13,8 @@ type PolygonProps = {
   handleChange: (idx: number, vertex) => void;
   boundary: { x1: number; y1: number; x2: number; y2: number };
   color: string;
+  isLine?: boolean;
+  lineIdx?: number;
 };
 
 export const Polygon: React.FC<PolygonProps> = ({
@@ -23,7 +25,11 @@ export const Polygon: React.FC<PolygonProps> = ({
   handleChange,
   boundary,
   color,
+  isLine = false,
+  lineIdx,
 }) => {
+  console.log('polygon', polygon);
+
   const [cancelBtnVisible, setCanceBtnVisible] = useState(false);
   const groupRef = useRef<Konva.Group>(null);
 
@@ -122,6 +128,18 @@ export const Polygon: React.FC<PolygonProps> = ({
         onClick={(): void => removePolygon()}
         scale={{ x: 1 / scale, y: 1 / scale }}
       />
+      {isLine && (
+        <Text
+          x={polygon[1].x + 5 / scale}
+          y={polygon[1].y - 20 / scale}
+          text={lineIdx && lineIdx.toString()}
+          fontSize={30}
+          fill="white"
+          strokeWidth={3}
+          visible={isLine}
+          scale={{ x: 1 / scale, y: 1 / scale }}
+        />
+      )}
     </Group>
   );
 };
