@@ -28,8 +28,6 @@ export const Polygon: React.FC<PolygonProps> = ({
   isLine = false,
   lineIdx,
 }) => {
-  console.log('polygon', polygon);
-
   const [cancelBtnVisible, setCanceBtnVisible] = useState(false);
   const groupRef = useRef<Konva.Group>(null);
 

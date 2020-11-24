@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
 
+import { extractSortVideoAnnos } from '../../utils/extractSortVideoAnnos';
+
 import { VideoAnno } from '../../store/shared/BaseShape';
 import { isBBox } from '../../store/shared/Box2d';
 import { isLine } from '../../store/shared/Line';
@@ -33,8 +35,10 @@ export const VideoAnnosGroup: React.FC<VideoAnnosGroupProps> = ({
   color = 'white',
 }): JSX.Element => {
   const enhanceSortVideoAnnos = useMemo(() => {
-    return videoAnnos;
-  }, [videoAnnos]);
+    return extractSortVideoAnnos(videoAnnos);
+  }, [videoAnnos]) as VideoAnno[];
+
+  console.log('enhanceSortVideoAnnos', enhanceSortVideoAnnos);
 
   return (
     <>
