@@ -110,6 +110,23 @@ export type PostProjectFaliedAction = {
   error: Error;
 };
 
+export const POST_CUSTOM_PROJECT_REQUEST = 'POST_CUSTOM_PROJECT_REQUEST';
+export type PostCustomProjectRequestAction = {
+  type: typeof POST_CUSTOM_PROJECT_REQUEST;
+};
+
+export const POST_CUSTOM_PROJECT_SUCCESS = 'POST_CUSTOM_PROJECT_SUCCESS';
+export type PostCustomProjectSuccessAction = {
+  type: typeof POST_CUSTOM_PROJECT_SUCCESS;
+  data: any;
+};
+
+export const POST_CUSTOM_PROJECT_FAILED = 'POST_CUSTOM_PROJECT_FAILED';
+export type PostCustomProjectFAILEDAction = {
+  type: typeof POST_CUSTOM_PROJECT_FAILED;
+  error: Error;
+};
+
 export const UPDATE_PROJECT_DATA = 'UPDATE_PROJECT_DATA';
 export type UpdateProjectDataAction = {
   type: typeof UPDATE_PROJECT_DATA;
@@ -135,7 +152,10 @@ export type ProjectActionTypes =
   | PostProjectFaliedAction
   | UpdateProjectDataAction
   | TrainSuccessAction
-  | TrainFailedAction;
+  | TrainFailedAction
+  | PostCustomProjectRequestAction
+  | PostCustomProjectSuccessAction
+  | PostCustomProjectFAILEDAction;
 
 // Describing the different THUNK ACTION NAMES available
 export type ProjectThunk<ReturnType = void> = ThunkAction<ReturnType, State, unknown, Action<string>>;

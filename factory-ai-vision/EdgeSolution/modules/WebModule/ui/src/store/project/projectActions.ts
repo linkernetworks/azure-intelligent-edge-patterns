@@ -25,6 +25,12 @@ import {
   TRAIN_SUCCESS,
   TrainFailedAction,
   TRAIN_FAILED,
+  POST_CUSTOM_PROJECT_REQUEST,
+  PostCustomProjectRequestAction,
+  POST_CUSTOM_PROJECT_SUCCESS,
+  PostCustomProjectSuccessAction,
+  POST_CUSTOM_PROJECT_FAILED,
+  PostCustomProjectFAILEDAction,
 } from './projectTypes';
 import { createWrappedAsync, getErrorLog } from '../shared/createWrappedAsync';
 
@@ -51,6 +57,20 @@ const postProjectSuccess = (data: ProjectData): PostProjectSuccessAction => ({
 });
 const postProjectFail = (error: Error): PostProjectFaliedAction => ({
   type: POST_PROJECT_FALIED,
+  error,
+});
+
+const postCustomProjectRequest = (): PostCustomProjectRequestAction => ({
+  type: POST_CUSTOM_PROJECT_REQUEST,
+});
+
+const postCustomProjectSuccess = (data): PostCustomProjectSuccessAction => ({
+  type: POST_CUSTOM_PROJECT_SUCCESS,
+  data,
+});
+
+const postCustomProjectFail = (error: Error): PostCustomProjectFAILEDAction => ({
+  type: POST_CUSTOM_PROJECT_FAILED,
   error,
 });
 
@@ -196,6 +216,10 @@ export const thunkPostProject = (projectData: Omit<ProjectData, 'id'>): ProjectT
       dispatch(postProjectFail(err));
       alert(getErrorLog(err));
     }) as Promise<number>;
+};
+
+export const thunkPostCustomProject = (project): ProjectThunk => (dispatch, getState) => {
+  console.log(project);
 };
 
 export const getConfigure = createWrappedAsync<any, number>('project/configure', async (projectId) => {

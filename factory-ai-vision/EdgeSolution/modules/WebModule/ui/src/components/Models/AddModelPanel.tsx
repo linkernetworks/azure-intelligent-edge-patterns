@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import {
   Panel,
   TextField,
@@ -12,6 +12,16 @@ import {
 } from '@fluentui/react';
 import * as R from 'ramda';
 import { useDispatch } from 'react-redux';
+
+import {} from '../../store/project/projectActions';
+
+const toBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
 
 export enum PanelMode {
   Create,
@@ -31,19 +41,19 @@ type FormData<V> = {
 };
 
 type Form = {
-  modelName: FormData<string>;
-  endPoint: FormData<string>;
-  key: string;
+  name: string;
+  endPoint: string;
+  labels: string;
   header: string;
-  secure: boolean;
+  setting: boolean;
 };
 
 const initialForm: Form = {
-  modelName: { value: '', errMsg: '' },
-  endPoint: { value: '', errMsg: '' },
-  key: '',
+  name: '',
+  endPoint: '',
+  labels: '',
   header: '',
-  secure: false,
+  setting: false,
 };
 
 const uploadIcon: IIconProps = { iconName: 'Upload' };
@@ -54,10 +64,16 @@ const AddModelPanel: React.FC<AddModelPanelProps> = ({
   mode,
   onDissmiss,
 }) => {
+  const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<Form>(initialValue);
 
   const fileInputRef = useRef(null);
+
+  const errMsg = useMemo(() => {
+    if (isError) return `This field is required`;
+    return '';
+  }, [isError]);
 
   const dispatch = useDispatch();
 
@@ -65,8 +81,7 @@ const AddModelPanel: React.FC<AddModelPanelProps> = ({
     let hasError = false;
 
     ['modelName', 'endPoint'].forEach((key) => {
-      if (!formData[key].value) {
-        setFormData(R.assocPath([key, 'errMsg'], `This field is required`));
+      if (!formData[key]) {
         hasError = true;
       }
     });
@@ -74,23 +89,34 @@ const AddModelPanel: React.FC<AddModelPanelProps> = ({
     return hasError;
   }, [formData]);
 
-  const handleUploadClick = () => {
+  const handleInputClick = () => {
     fileInputRef.current.click();
   };
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    console.log(e.target.files);
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.files[0]);
+    const file = (await toBase64(e.target.files[0])) as string;
+
+    if (file) {
+      setFormData({
+        ...formData,
+        labels: file,
+      });
+    }
   };
 
   const onConfirm = useCallback(async () => {
-    if (validate()) return;
+    if (validate()) {
+      setIsError(true);
+      return;
+    }
 
     setLoading(true);
-    // console.log('formData', formData);
+    console.log('formData', formData);
     alert('Coming soon');
     setLoading(false);
-    onDissmiss();
-  }, [dispatch, formData.modelName.value, formData.endPoint.value, mode, onDissmiss, validate]);
+    // onDissmiss();
+  }, [dispatch, formData.name, formData.endPoint, mode, onDissmiss, validate]);
 
   const onRenderFooterContent = useCallback(
     () => (
@@ -105,12 +131,16 @@ const AddModelPanel: React.FC<AddModelPanelProps> = ({
   );
 
   const onChange = (key: string) => (_, newValue) => {
-    setFormData(R.assocPath([key, 'value'], newValue));
+    setIsError(false);
+
+    setFormData(R.assocPath([key], newValue));
   };
 
-  const handleToggle = () => {
-    setFormData({ ...formData, secure: !formData.secure });
+  const handleSecureToggle = () => {
+    setFormData({ ...formData, setting: !formData.setting });
   };
+
+  console.log('formData', formData);
 
   return (
     <Panel
@@ -124,31 +154,36 @@ const AddModelPanel: React.FC<AddModelPanelProps> = ({
       <ProgressIndicator progressHidden={!loading} />
       <TextField
         label="Model name"
-        value={formData.modelName.value}
-        errorMessage={formData.modelName.errMsg}
-        onChange={onChange('modelName')}
+        value={formData.name}
+        errorMessage={errMsg}
+        onChange={onChange('name')}
         required
       />
       <TextField
         label="Endpoint"
-        value={formData.endPoint.value}
-        errorMessage={formData.endPoint.errMsg}
+        value={formData.endPoint}
+        errorMessage={errMsg}
         onChange={onChange('endPoint')}
+        required
       />
       <Stack styles={{ root: { padding: '5px 0', display: 'block' } }}>
         <Label>Labels</Label>
-        <DefaultButton text="Upload" iconProps={uploadIcon} label="Labels" onClick={handleUploadClick} />
+        <DefaultButton text="Upload" iconProps={uploadIcon} label="Labels" onClick={handleInputClick} />
         <input
           ref={fileInputRef}
           type="file"
           onChange={handleUpload}
-          // accept="image/*"
-          // multiple
+          accept=".txt"
           style={{ display: 'none' }}
         />
       </Stack>
-      <TextField label="Key" value={formData.key} errorMessage={formData.key} onChange={onChange('key')} />
-      <Toggle label="Secure" checked={formData.secure} onText="On" offText="Off" onChange={handleToggle} />
+      <Toggle
+        label="Secure"
+        checked={formData.setting}
+        onText="On"
+        offText="Off"
+        onChange={handleSecureToggle}
+      />
       <TextField label="Header" value={formData.header} onChange={onChange('header')} />
     </Panel>
   );

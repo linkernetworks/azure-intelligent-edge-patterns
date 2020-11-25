@@ -16,6 +16,9 @@ import {
   InferenceSource,
   TRAIN_SUCCESS,
   TRAIN_FAILED,
+  POST_CUSTOM_PROJECT_REQUEST,
+  POST_CUSTOM_PROJECT_SUCCESS,
+  POST_CUSTOM_PROJECT_FAILED,
 } from './projectTypes';
 import { getConfigure, updateProbThreshold } from './projectActions';
 import { pullCVProjects } from '../trainingProjectSlice';
@@ -113,6 +116,12 @@ const projectReducer = (state = initialState, action: ProjectActionTypes): Proje
     case updateProbThreshold.fulfilled.toString():
       return { ...state, isLoading: false, originData: R.clone(state.data) };
     case updateProbThreshold.rejected.toString():
+      return { ...state, isLoading: false };
+    case POST_CUSTOM_PROJECT_REQUEST:
+      return { ...state, isLoading: true, error: null };
+    case POST_CUSTOM_PROJECT_SUCCESS:
+      return { ...state, isLoading: false };
+    case POST_CUSTOM_PROJECT_FAILED:
       return { ...state, isLoading: false };
     default:
       return { ...state };
