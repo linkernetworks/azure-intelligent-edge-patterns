@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
-import { CommandBar, ICommandBarItemProps, getTheme, Stack, Breadcrumb } from '@fluentui/react';
+import { CommandBar, ICommandBarItemProps, getTheme, Stack, Breadcrumb, DetailsList } from '@fluentui/react';
 import { useBoolean } from '@uifabric/react-hooks';
 
-import ModelComponent from '../components/Models/Models';
+import ModelComponent from '../components/Models/Model';
 import AddModelPanel, { PanelMode } from '../components/Models/AddModelPanel';
 
 const theme = getTheme();
@@ -25,16 +25,18 @@ export const Models = () => {
   );
 
   return (
-    <Stack styles={{ root: { height: '100%' } }}>
-      <CommandBar
-        items={commandBarItems}
-        styles={{ root: { borderBottom: `solid 1px ${theme.palette.neutralLight}` } }}
-      />
-      <Stack styles={{ root: { padding: '15px' } }} grow>
-        <Breadcrumb items={[{ key: 'models', text: 'Models' }]} />
-        <ModelComponent onAddModelClick={handlePanelOpen} />
+    <>
+      <Stack styles={{ root: { height: '100%' } }}>
+        <CommandBar
+          items={commandBarItems}
+          styles={{ root: { borderBottom: `solid 1px ${theme.palette.neutralLight}` } }}
+        />
+        <Stack styles={{ root: { padding: '15px' } }} grow>
+          <Breadcrumb items={[{ key: 'models', text: 'Models' }]} />
+          <ModelComponent onAddModelClick={handlePanelOpen} />
+        </Stack>
       </Stack>
       <AddModelPanel isOpen={isPanelOpen} onDissmiss={handlePanelDissmiss} mode={PanelMode.Create} />
-    </Stack>
+    </>
   );
 };

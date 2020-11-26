@@ -31,8 +31,11 @@ import {
   PostCustomProjectSuccessAction,
   POST_CUSTOM_PROJECT_FAILED,
   PostCustomProjectFAILEDAction,
+  CustomProjectType,
 } from './projectTypes';
 import { createWrappedAsync, getErrorLog } from '../shared/createWrappedAsync';
+
+import { refreshTrainingProject } from '../trainingProjectSlice';
 
 import { extractRecommendFps } from '../../utils/extractRecommendFps';
 
@@ -64,9 +67,8 @@ const postCustomProjectRequest = (): PostCustomProjectRequestAction => ({
   type: POST_CUSTOM_PROJECT_REQUEST,
 });
 
-const postCustomProjectSuccess = (data): PostCustomProjectSuccessAction => ({
+const postCustomProjectSuccess = (): PostCustomProjectSuccessAction => ({
   type: POST_CUSTOM_PROJECT_SUCCESS,
-  data,
 });
 
 const postCustomProjectFail = (error: Error): PostCustomProjectFAILEDAction => ({
@@ -218,8 +220,39 @@ export const thunkPostProject = (projectData: Omit<ProjectData, 'id'>): ProjectT
     }) as Promise<number>;
 };
 
-export const thunkPostCustomProject = (project): ProjectThunk => (dispatch, getState) => {
-  console.log(project);
+export const thunkPostCustomProject = (project: CustomProjectType) => (dispatch, getState) => {
+  const extractConvertCustomProject = (customProject: CustomProjectType) => {
+    return {
+      is_prediction_module: true,
+      name: customProject.name,
+      labels: customProject.labels,
+      prediction_uri: customProject.endPoint,
+      prediction_header: customProject.header,
+    };
+  };
+
+  const customProject = extractConvertCustomProject(project);
+
+  dispatch(postCustomProjectRequest());
+
+  return Axios('/api/projects', {
+    data: customProject,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then((res) => {
+      console.log('res', res);
+
+      dispatch(refreshTrainingProject());
+      dispatch(postCustomProjectSuccess());
+      return null;
+    })
+    .catch((err) => {
+      dispatch(postCustomProjectFail(err));
+      alert(getErrorLog(err));
+    });
 };
 
 export const getConfigure = createWrappedAsync<any, number>('project/configure', async (projectId) => {

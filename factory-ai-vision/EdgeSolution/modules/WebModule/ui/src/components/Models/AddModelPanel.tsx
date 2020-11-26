@@ -13,7 +13,8 @@ import {
 import * as R from 'ramda';
 import { useDispatch } from 'react-redux';
 
-import {} from '../../store/project/projectActions';
+// import { thunkPostCustomProject } from '../../store/project/projectActions';
+import { createCustomProject, updateCustomProject } from '../../store/trainingProjectSlice';
 
 const toBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -28,27 +29,23 @@ export enum PanelMode {
   Update,
 }
 
-type AddModelPanelProps = {
-  isOpen: boolean;
-  initialValue?: Form;
-  mode: PanelMode;
-  onDissmiss: () => void;
-};
-
-type FormData<V> = {
-  value: V;
-  errMsg: string;
-};
-
-type Form = {
+type CustomFormType = {
   name: string;
   endPoint: string;
   labels: string;
   header: string;
   setting: boolean;
+  id?: number;
 };
 
-const initialForm: Form = {
+type AddModelPanelProps = {
+  isOpen: boolean;
+  initialValue?: CustomFormType;
+  mode: PanelMode;
+  onDissmiss: () => void;
+};
+
+const initialForm: CustomFormType = {
   name: '',
   endPoint: '',
   labels: '',
@@ -66,7 +63,8 @@ const AddModelPanel: React.FC<AddModelPanelProps> = ({
 }) => {
   const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<Form>(initialValue);
+  const [formData, setFormData] = useState<CustomFormType>(initialValue);
+  const [fileName, setFileName] = useState('');
 
   const fileInputRef = useRef(null);
 
@@ -80,7 +78,7 @@ const AddModelPanel: React.FC<AddModelPanelProps> = ({
   const validate = useCallback(() => {
     let hasError = false;
 
-    ['modelName', 'endPoint'].forEach((key) => {
+    ['name', 'endPoint'].forEach((key) => {
       if (!formData[key]) {
         hasError = true;
       }
@@ -94,7 +92,7 @@ const AddModelPanel: React.FC<AddModelPanelProps> = ({
   };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.files[0]);
+    setFileName(e.target.files[0].name);
     const file = (await toBase64(e.target.files[0])) as string;
 
     if (file) {
@@ -112,10 +110,15 @@ const AddModelPanel: React.FC<AddModelPanelProps> = ({
     }
 
     setLoading(true);
-    console.log('formData', formData);
-    alert('Coming soon');
+    if (mode === PanelMode.Create) {
+      await dispatch(createCustomProject(formData));
+    } else {
+      await dispatch(updateCustomProject(formData));
+    }
+
     setLoading(false);
-    // onDissmiss();
+    onDissmiss();
+    setFormData(initialValue);
   }, [dispatch, formData.name, formData.endPoint, mode, onDissmiss, validate]);
 
   const onRenderFooterContent = useCallback(
@@ -139,8 +142,6 @@ const AddModelPanel: React.FC<AddModelPanelProps> = ({
   const handleSecureToggle = () => {
     setFormData({ ...formData, setting: !formData.setting });
   };
-
-  console.log('formData', formData);
 
   return (
     <Panel
@@ -169,6 +170,7 @@ const AddModelPanel: React.FC<AddModelPanelProps> = ({
       <Stack styles={{ root: { padding: '5px 0', display: 'block' } }}>
         <Label>Labels</Label>
         <DefaultButton text="Upload" iconProps={uploadIcon} label="Labels" onClick={handleInputClick} />
+        {fileName && <Label>{fileName}</Label>}
         <input
           ref={fileInputRef}
           type="file"

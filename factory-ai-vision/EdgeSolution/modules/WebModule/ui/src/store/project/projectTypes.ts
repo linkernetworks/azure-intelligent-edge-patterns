@@ -72,6 +72,14 @@ export type ProjectData = {
   inferenceSource: InferenceSource;
 };
 
+export type CustomProjectType = {
+  name: string;
+  endPoint: string;
+  labels: string;
+  header: string;
+  setting: boolean;
+};
+
 // Describing the different ACTION NAMES available
 export const GET_PROJECT_REQUEST = 'GET_PROJECT_REQUEST';
 export type GetProjectRequestAction = {
@@ -118,7 +126,6 @@ export type PostCustomProjectRequestAction = {
 export const POST_CUSTOM_PROJECT_SUCCESS = 'POST_CUSTOM_PROJECT_SUCCESS';
 export type PostCustomProjectSuccessAction = {
   type: typeof POST_CUSTOM_PROJECT_SUCCESS;
-  data: any;
 };
 
 export const POST_CUSTOM_PROJECT_FAILED = 'POST_CUSTOM_PROJECT_FAILED';
