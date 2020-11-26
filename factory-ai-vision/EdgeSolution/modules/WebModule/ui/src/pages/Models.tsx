@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { CommandBar, ICommandBarItemProps, getTheme, Stack, Breadcrumb, DetailsList } from '@fluentui/react';
+import { CommandBar, ICommandBarItemProps, getTheme, Stack, Breadcrumb } from '@fluentui/react';
 import { useBoolean } from '@uifabric/react-hooks';
 
 import ModelComponent from '../components/Models/Model';

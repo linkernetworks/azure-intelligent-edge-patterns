@@ -120,11 +120,14 @@ export const updateCustomProject = createWrappedAsync<any, any, { state: State }
   },
 );
 
-export const deleteCustomProject = createWrappedAsync<any, number, { state: State }>(
+export const deleteCustomProject = createWrappedAsync<any, { id: number; resolve: () => void }>(
   'trainingSlice/DeleteCustom',
-  async (projectId) => {
-    const response = await Axios.delete(`/api/projects/${projectId}`);
-    console.log('response', response);
+  async ({ id, resolve }) => {
+    await Axios.delete(`/api/projects/${id}/`);
+
+    resolve();
+
+    return id;
   },
 );
 
@@ -141,6 +144,7 @@ const slice = createSlice({
       .addCase(createNewTrainingProject.fulfilled, entityAdapter.upsertOne)
       .addCase(createCustomProject.fulfilled, entityAdapter.upsertOne)
       .addCase(updateCustomProject.fulfilled, entityAdapter.upsertOne)
+      .addCase(deleteCustomProject.fulfilled, entityAdapter.removeOne)
       .addMatcher(isCRDAction, insertDemoFields);
   },
 });

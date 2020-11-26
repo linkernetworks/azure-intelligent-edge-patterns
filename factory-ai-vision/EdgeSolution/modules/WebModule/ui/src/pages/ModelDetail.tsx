@@ -1,7 +1,7 @@
 /* eslint react/display-name: "off" */
 
 import React from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import {
   Breadcrumb,
   Stack,
@@ -41,8 +41,8 @@ const titleStyles: ITextStyles = { root: { fontWeight: 600, fontSize: '16px' } }
 const infoBlockTokens: IStackTokens = { childrenGap: 10 };
 
 const BaseModelDetail: React.FC<ModelDetailProps> = ({ handlePanelOpen, project }) => {
-  const history = useHistory();
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const commandBarItems: ICommandBarItemProps[] = [
     {
@@ -60,14 +60,19 @@ const BaseModelDetail: React.FC<ModelDetailProps> = ({ handlePanelOpen, project 
         iconName: 'Delete',
       },
       onClick: () => {
-        console.log('delete');
         // Because onClick cannot accept the return type Promise<void>, use the IIFE to workaround
         (async () => {
           // eslint-disable-next-line no-restricted-globals
           if (!confirm('Sure you want to delete?')) return;
 
-          await dispatch(deleteCustomProject(project.id));
-          history.push('/models');
+          await dispatch(
+            deleteCustomProject({
+              id: project.id,
+              resolve: () => {
+                history.push('/models');
+              },
+            }),
+          );
         })();
       },
     },

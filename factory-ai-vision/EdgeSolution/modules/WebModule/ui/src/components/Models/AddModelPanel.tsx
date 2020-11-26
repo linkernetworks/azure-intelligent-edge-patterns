@@ -119,7 +119,16 @@ const AddModelPanel: React.FC<AddModelPanelProps> = ({
     setLoading(false);
     onDissmiss();
     setFormData(initialValue);
-  }, [dispatch, formData.name, formData.endPoint, mode, onDissmiss, validate]);
+  }, [
+    dispatch,
+    formData.name,
+    formData.endPoint,
+    formData.header,
+    formData.labels,
+    mode,
+    onDissmiss,
+    validate,
+  ]);
 
   const onRenderFooterContent = useCallback(
     () => (

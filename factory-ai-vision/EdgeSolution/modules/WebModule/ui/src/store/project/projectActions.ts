@@ -25,17 +25,8 @@ import {
   TRAIN_SUCCESS,
   TrainFailedAction,
   TRAIN_FAILED,
-  POST_CUSTOM_PROJECT_REQUEST,
-  PostCustomProjectRequestAction,
-  POST_CUSTOM_PROJECT_SUCCESS,
-  PostCustomProjectSuccessAction,
-  POST_CUSTOM_PROJECT_FAILED,
-  PostCustomProjectFAILEDAction,
-  CustomProjectType,
 } from './projectTypes';
 import { createWrappedAsync, getErrorLog } from '../shared/createWrappedAsync';
-
-import { refreshTrainingProject } from '../trainingProjectSlice';
 
 import { extractRecommendFps } from '../../utils/extractRecommendFps';
 
@@ -60,19 +51,6 @@ const postProjectSuccess = (data: ProjectData): PostProjectSuccessAction => ({
 });
 const postProjectFail = (error: Error): PostProjectFaliedAction => ({
   type: POST_PROJECT_FALIED,
-  error,
-});
-
-const postCustomProjectRequest = (): PostCustomProjectRequestAction => ({
-  type: POST_CUSTOM_PROJECT_REQUEST,
-});
-
-const postCustomProjectSuccess = (): PostCustomProjectSuccessAction => ({
-  type: POST_CUSTOM_PROJECT_SUCCESS,
-});
-
-const postCustomProjectFail = (error: Error): PostCustomProjectFAILEDAction => ({
-  type: POST_CUSTOM_PROJECT_FAILED,
   error,
 });
 
@@ -218,41 +196,6 @@ export const thunkPostProject = (projectData: Omit<ProjectData, 'id'>): ProjectT
       dispatch(postProjectFail(err));
       alert(getErrorLog(err));
     }) as Promise<number>;
-};
-
-export const thunkPostCustomProject = (project: CustomProjectType) => (dispatch, getState) => {
-  const extractConvertCustomProject = (customProject: CustomProjectType) => {
-    return {
-      is_prediction_module: true,
-      name: customProject.name,
-      labels: customProject.labels,
-      prediction_uri: customProject.endPoint,
-      prediction_header: customProject.header,
-    };
-  };
-
-  const customProject = extractConvertCustomProject(project);
-
-  dispatch(postCustomProjectRequest());
-
-  return Axios('/api/projects', {
-    data: customProject,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-    .then((res) => {
-      console.log('res', res);
-
-      dispatch(refreshTrainingProject());
-      dispatch(postCustomProjectSuccess());
-      return null;
-    })
-    .catch((err) => {
-      dispatch(postCustomProjectFail(err));
-      alert(getErrorLog(err));
-    });
 };
 
 export const getConfigure = createWrappedAsync<any, number>('project/configure', async (projectId) => {
