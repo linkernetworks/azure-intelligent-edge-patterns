@@ -177,15 +177,3 @@ export const originVideoAnnosSelectorFactory = (cameraId: number) =>
     (state: State) => Object.values(state.videoAnnos.originEntities || {}),
     (originAnnos: VideoAnno[]) => originAnnos.filter((e) => e.camera === cameraId),
   );
-
-export const withOrderVideoAnnosSelectorFactory = (cameraId: number) =>
-  createSelector(selectAllVideoAnnos, (annos) => {
-    console.log('annos', annos);
-
-    return annos
-      .filter((e) => e.camera === cameraId)
-      .sort((a, b) => {
-        return a.id > b.id ? -1 : 1;
-      })
-      .map((e, i) => ({ ...e, order: i + 1 }));
-  });

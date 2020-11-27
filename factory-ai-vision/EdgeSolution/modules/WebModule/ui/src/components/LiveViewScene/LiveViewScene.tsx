@@ -2,11 +2,14 @@ import React, { useEffect, useRef, useMemo } from 'react';
 import { Stage, Image as KonvaImage, Layer } from 'react-konva';
 import Konva from 'konva';
 import { KonvaEventObject } from 'konva/types/Node';
-import { useSelector, useDispatch, connect } from 'react-redux';
-
+import { connect } from 'react-redux';
 import Axios from 'axios';
 
 import { State } from 'RootStateType';
+import { Shape, VideoAnno } from '../../store/shared/BaseShape';
+import { InferenceMode } from '../../store/project/projectTypes';
+import { Position2D } from '../../store/type';
+
 import {
   CreatingState,
   finishLabel as finishLabelAction,
@@ -14,17 +17,16 @@ import {
   removeVideoAnno as removeVideoAnnoAction,
   updateVideoAnno as updateVideoAnnoAction,
   videoAnnosSelectorFactory,
-  withOrderVideoAnnosSelectorFactory,
 } from '../../store/videoAnnoSlice';
-import { Shape, VideoAnno } from '../../store/shared/BaseShape';
-import { isAOIShape, isCountingLine, isDangerZone } from '../../store/shared/VideoAnnoUtil';
 import { selectCameraById } from '../../store/cameraSlice';
-import { InferenceMode } from '../../store/project/projectTypes';
+
 import useImage from '../LabelingPage/util/useImage';
 import { useInterval } from '../../hooks/useInterval';
+import { isAOIShape, isCountingLine, isDangerZone } from '../../store/shared/VideoAnnoUtil';
 import { dummyFunction } from '../../utils/dummyFunction';
+import { plusOrderVideoAnnos, EnhanceVideoAnno } from '../../utils/plusVideoAnnos';
+
 import { VideoAnnosGroup } from './VideoAnnosGroup';
-import { Position2D } from '../../store/type';
 
 /**
  * Because the layer has been scaled to fit the window size, we need to transform the coordinate to the
@@ -84,7 +86,7 @@ const mapDispatch = (dispatch, { cameraId }: OwnProps): DispatchProps => ({
 
 const Component: React.FC<LiveViewProps> = ({
   cameraId,
-  // videoAnnos,
+  videoAnnos,
   creatingShape,
   onCreatingPoint,
   updateVideoAnno,
@@ -96,8 +98,7 @@ const Component: React.FC<LiveViewProps> = ({
   dangerZoneVisible,
   disableVideoFeed,
 }) => {
-  const videoAnnos = useSelector(withOrderVideoAnnosSelectorFactory(cameraId));
-  console.log('videoAnnos2', videoAnnos);
+  const enhanceOrderVideoAnnos = useMemo(() => plusOrderVideoAnnos(videoAnnos), [videoAnnos]);
 
   const [imgEle, status, { width: imgWidth, height: imgHeight }] = useImage(
     disableVideoFeed ? '' : `/video_feed?cam_id=${cameraId}`,
@@ -160,9 +161,13 @@ const Component: React.FC<LiveViewProps> = ({
     if (creatingState !== CreatingState.Creating) return;
 
     const { x, y } = getRelativePosition(e.target.getLayer());
-    if (creatingShape === Shape.BBox) updateVideoAnno(videoAnnos[videoAnnos.length - 1].id, { x2: x, y2: y });
+    if (creatingShape === Shape.BBox)
+      updateVideoAnno(enhanceOrderVideoAnnos[enhanceOrderVideoAnnos.length - 1].id, { x2: x, y2: y });
     else if (creatingShape === Shape.Polygon || creatingShape === Shape.Line)
-      updateVideoAnno(videoAnnos[videoAnnos.length - 1].id, { idx: -1, vertex: { x, y } });
+      updateVideoAnno(enhanceOrderVideoAnnos[enhanceOrderVideoAnnos.length - 1].id, {
+        idx: -1,
+        vertex: { x, y },
+      });
   };
 
   useEffect(() => {
@@ -179,19 +184,16 @@ const Component: React.FC<LiveViewProps> = ({
   }, [finishLabel]);
 
   const AOIs = useMemo(() => {
-    return videoAnnos.filter(isAOIShape);
-  }, [videoAnnos]);
+    return enhanceOrderVideoAnnos.filter(isAOIShape);
+  }, [enhanceOrderVideoAnnos]);
 
   const countingLines = useMemo(() => {
-    return videoAnnos.filter(isCountingLine);
-  }, [videoAnnos]);
+    return enhanceOrderVideoAnnos.filter(isCountingLine);
+  }, [enhanceOrderVideoAnnos]);
 
   const dangerZone = useMemo(() => {
-    return videoAnnos.filter(isDangerZone);
-  }, [videoAnnos]);
-
-  console.log('videoAnnos', videoAnnos);
-
+    return enhanceOrderVideoAnnos.filter(isDangerZone);
+  }, [enhanceOrderVideoAnnos]);
   return (
     <div
       ref={divRef}
