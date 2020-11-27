@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useMemo } from 'react';
 import { Stage, Image as KonvaImage, Layer } from 'react-konva';
 import Konva from 'konva';
 import { KonvaEventObject } from 'konva/types/Node';
+import { useSelector, useDispatch, connect } from 'react-redux';
 
-import { connect } from 'react-redux';
 import Axios from 'axios';
 
 import { State } from 'RootStateType';
@@ -14,6 +14,7 @@ import {
   removeVideoAnno as removeVideoAnnoAction,
   updateVideoAnno as updateVideoAnnoAction,
   videoAnnosSelectorFactory,
+  withOrderVideoAnnosSelectorFactory,
 } from '../../store/videoAnnoSlice';
 import { Shape, VideoAnno } from '../../store/shared/BaseShape';
 import { isAOIShape, isCountingLine, isDangerZone } from '../../store/shared/VideoAnnoUtil';
@@ -83,7 +84,7 @@ const mapDispatch = (dispatch, { cameraId }: OwnProps): DispatchProps => ({
 
 const Component: React.FC<LiveViewProps> = ({
   cameraId,
-  videoAnnos,
+  // videoAnnos,
   creatingShape,
   onCreatingPoint,
   updateVideoAnno,
@@ -95,6 +96,9 @@ const Component: React.FC<LiveViewProps> = ({
   dangerZoneVisible,
   disableVideoFeed,
 }) => {
+  const videoAnnos = useSelector(withOrderVideoAnnosSelectorFactory(cameraId));
+  console.log('videoAnnos2', videoAnnos);
+
   const [imgEle, status, { width: imgWidth, height: imgHeight }] = useImage(
     disableVideoFeed ? '' : `/video_feed?cam_id=${cameraId}`,
     '',
@@ -185,6 +189,8 @@ const Component: React.FC<LiveViewProps> = ({
   const dangerZone = useMemo(() => {
     return videoAnnos.filter(isDangerZone);
   }, [videoAnnos]);
+
+  console.log('videoAnnos', videoAnnos);
 
   return (
     <div

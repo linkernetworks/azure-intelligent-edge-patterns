@@ -11,10 +11,14 @@ import { Box } from './Box';
 import { Mask } from './Mask';
 import { Polygon } from './Polygon';
 
+type EnhanceVideoAnno = VideoAnno & {
+  order: number;
+};
+
 type VideoAnnosGroupProps = {
   imgWidth: number;
   imgHeight: number;
-  videoAnnos: VideoAnno[];
+  videoAnnos: EnhanceVideoAnno[];
   updateVideoAnno: (id: string, changes) => void;
   removeVideoAnno: (id: string) => void;
   visible: boolean;
@@ -34,16 +38,18 @@ export const VideoAnnosGroup: React.FC<VideoAnnosGroupProps> = ({
   needMask,
   color = 'white',
 }): JSX.Element => {
-  const enhanceSortVideoAnnos = useMemo(() => {
-    return extractSortVideoAnnos(videoAnnos);
-  }, [videoAnnos]) as VideoAnno[];
+  // const enhanceSortVideoAnnos = useMemo(() => {
+  //   return extractSortVideoAnnos(videoAnnos);
+  // }, [videoAnnos]) as VideoAnno[];
 
-  console.log('enhanceSortVideoAnnos', enhanceSortVideoAnnos);
+  // console.log('enhanceSortVideoAnnos', enhanceSortVideoAnnos);
+
+  console.log('videoAnnos', videoAnnos);
 
   return (
     <>
       {needMask && <Mask width={imgWidth} height={imgHeight} holes={videoAnnos} visible={visible} />}
-      {enhanceSortVideoAnnos.map((e, videoAnnoIdx) => {
+      {videoAnnos.map((e) => {
         if (isBBox(e)) {
           return (
             <Box
@@ -57,6 +63,7 @@ export const VideoAnnosGroup: React.FC<VideoAnnosGroupProps> = ({
               removeBox={() => removeVideoAnno(e.id)}
               creatingState={creatingState}
               color={color}
+              shapeIdx={e.order}
             />
           );
         }
@@ -71,6 +78,7 @@ export const VideoAnnosGroup: React.FC<VideoAnnosGroupProps> = ({
               handleChange={(idx, vertex) => updateVideoAnno(e.id, { idx, vertex })}
               boundary={{ x1: 0, y1: 0, x2: imgWidth, y2: imgHeight }}
               color={color}
+              shapeIdx={e.order}
             />
           );
         }
@@ -85,8 +93,7 @@ export const VideoAnnosGroup: React.FC<VideoAnnosGroupProps> = ({
               handleChange={(idx, vertex) => updateVideoAnno(e.id, { idx, vertex })}
               boundary={{ x1: 0, y1: 0, x2: imgWidth, y2: imgHeight }}
               color={color}
-              isLine
-              lineIdx={videoAnnoIdx + 1}
+              shapeIdx={e.order}
             />
           );
         }
