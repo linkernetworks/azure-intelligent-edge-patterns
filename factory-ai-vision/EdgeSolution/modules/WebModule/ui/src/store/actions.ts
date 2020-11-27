@@ -6,7 +6,7 @@ import { isAOIShape, isCountingLine, isDangerZone } from './shared/VideoAnnoUtil
 import { Image } from './type';
 import { createWrappedAsync } from './shared/createWrappedAsync';
 
-import { extractSortVideoAnnos } from '../utils/extractSortVideoAnnos';
+import { plusOrderVideoAnnos } from '../utils/plusVideoAnnos';
 
 export const updateRelabelImages = createWrappedAsync<any, undefined, { state: State }>(
   'updateRelabel',
@@ -95,17 +95,13 @@ export const updateCameraArea = createWrappedAsync<any, number, { state: State }
     const countingLines = getCountingLines(getState(), cameraId);
     const dangerZones = getDangerZones(getState(), cameraId);
 
-    const enhanceSortCountingLines = extractSortVideoAnnos(countingLines).map((e, i) => ({
-      ...e,
-      order: i + 1,
-    }));
-
-    console.log('enhanceSortCountingLines', enhanceSortCountingLines);
+    const enhanceCountingLines = plusOrderVideoAnnos(countingLines);
+    const enhancedangerZones = plusOrderVideoAnnos(dangerZones);
 
     await Axios.patch(`/api/cameras/${cameraId}/`, {
       area: JSON.stringify({ useAOI, AOIs }),
-      lines: JSON.stringify({ useCountingLine, countingLines }),
-      danger_zones: JSON.stringify({ useDangerZone, dangerZones }),
+      lines: JSON.stringify({ useCountingLine, enhanceCountingLines }),
+      danger_zones: JSON.stringify({ useDangerZone, enhancedangerZones }),
     });
   },
 );

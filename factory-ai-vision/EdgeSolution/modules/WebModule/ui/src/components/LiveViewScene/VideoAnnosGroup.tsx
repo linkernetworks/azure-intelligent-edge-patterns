@@ -1,6 +1,4 @@
-import React, { useMemo } from 'react';
-
-import { extractSortVideoAnnos } from '../../utils/extractSortVideoAnnos';
+import React from 'react';
 
 import { VideoAnno } from '../../store/shared/BaseShape';
 import { isBBox } from '../../store/shared/Box2d';
@@ -18,7 +16,7 @@ type EnhanceVideoAnno = VideoAnno & {
 type VideoAnnosGroupProps = {
   imgWidth: number;
   imgHeight: number;
-  videoAnnos: EnhanceVideoAnno[];
+  videoAnnos: VideoAnno[];
   updateVideoAnno: (id: string, changes) => void;
   removeVideoAnno: (id: string) => void;
   visible: boolean;
@@ -38,14 +36,6 @@ export const VideoAnnosGroup: React.FC<VideoAnnosGroupProps> = ({
   needMask,
   color = 'white',
 }): JSX.Element => {
-  // const enhanceSortVideoAnnos = useMemo(() => {
-  //   return extractSortVideoAnnos(videoAnnos);
-  // }, [videoAnnos]) as VideoAnno[];
-
-  // console.log('enhanceSortVideoAnnos', enhanceSortVideoAnnos);
-
-  console.log('videoAnnos', videoAnnos);
-
   return (
     <>
       {needMask && <Mask width={imgWidth} height={imgHeight} holes={videoAnnos} visible={visible} />}
@@ -63,7 +53,7 @@ export const VideoAnnosGroup: React.FC<VideoAnnosGroupProps> = ({
               removeBox={() => removeVideoAnno(e.id)}
               creatingState={creatingState}
               color={color}
-              shapeIdx={e.order}
+              orderIdx={e.order}
             />
           );
         }
@@ -78,7 +68,6 @@ export const VideoAnnosGroup: React.FC<VideoAnnosGroupProps> = ({
               handleChange={(idx, vertex) => updateVideoAnno(e.id, { idx, vertex })}
               boundary={{ x1: 0, y1: 0, x2: imgWidth, y2: imgHeight }}
               color={color}
-              shapeIdx={e.order}
             />
           );
         }
@@ -93,7 +82,7 @@ export const VideoAnnosGroup: React.FC<VideoAnnosGroupProps> = ({
               handleChange={(idx, vertex) => updateVideoAnno(e.id, { idx, vertex })}
               boundary={{ x1: 0, y1: 0, x2: imgWidth, y2: imgHeight }}
               color={color}
-              shapeIdx={e.order}
+              orderIdx={e.order}
             />
           );
         }

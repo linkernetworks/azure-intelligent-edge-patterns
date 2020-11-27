@@ -13,7 +13,7 @@ type PolygonProps = {
   handleChange: (idx: number, vertex) => void;
   boundary: { x1: number; y1: number; x2: number; y2: number };
   color: string;
-  shapeIdx: number;
+  orderIdx?: number;
 };
 
 export const Polygon: React.FC<PolygonProps> = ({
@@ -24,7 +24,7 @@ export const Polygon: React.FC<PolygonProps> = ({
   handleChange,
   boundary,
   color,
-  shapeIdx,
+  orderIdx = 0,
 }) => {
   const [cancelBtnVisible, setCanceBtnVisible] = useState(false);
   const groupRef = useRef<Konva.Group>(null);
@@ -127,11 +127,11 @@ export const Polygon: React.FC<PolygonProps> = ({
       <Text
         x={polygon[1].x + 5 / scale}
         y={polygon[1].y - 20 / scale}
-        text={shapeIdx && shapeIdx.toString()}
+        text={orderIdx && orderIdx.toString()}
         fontSize={30}
-        fill="white"
+        fill={color}
         strokeWidth={3}
-        visible={true}
+        visible={!!orderIdx}
         scale={{ x: 1 / scale, y: 1 / scale }}
       />
     </Group>

@@ -24,7 +24,7 @@ import useImage from '../LabelingPage/util/useImage';
 import { useInterval } from '../../hooks/useInterval';
 import { isAOIShape, isCountingLine, isDangerZone } from '../../store/shared/VideoAnnoUtil';
 import { dummyFunction } from '../../utils/dummyFunction';
-import { plusOrderVideoAnnos, EnhanceVideoAnno } from '../../utils/plusVideoAnnos';
+import { plusOrderVideoAnnos } from '../../utils/plusVideoAnnos';
 
 import { VideoAnnosGroup } from './VideoAnnosGroup';
 
@@ -98,8 +98,6 @@ const Component: React.FC<LiveViewProps> = ({
   dangerZoneVisible,
   disableVideoFeed,
 }) => {
-  const enhanceOrderVideoAnnos = useMemo(() => plusOrderVideoAnnos(videoAnnos), [videoAnnos]);
-
   const [imgEle, status, { width: imgWidth, height: imgHeight }] = useImage(
     disableVideoFeed ? '' : `/video_feed?cam_id=${cameraId}`,
     '',
@@ -161,10 +159,9 @@ const Component: React.FC<LiveViewProps> = ({
     if (creatingState !== CreatingState.Creating) return;
 
     const { x, y } = getRelativePosition(e.target.getLayer());
-    if (creatingShape === Shape.BBox)
-      updateVideoAnno(enhanceOrderVideoAnnos[enhanceOrderVideoAnnos.length - 1].id, { x2: x, y2: y });
+    if (creatingShape === Shape.BBox) updateVideoAnno(videoAnnos[videoAnnos.length - 1].id, { x2: x, y2: y });
     else if (creatingShape === Shape.Polygon || creatingShape === Shape.Line)
-      updateVideoAnno(enhanceOrderVideoAnnos[enhanceOrderVideoAnnos.length - 1].id, {
+      updateVideoAnno(videoAnnos[videoAnnos.length - 1].id, {
         idx: -1,
         vertex: { x, y },
       });
@@ -184,16 +181,17 @@ const Component: React.FC<LiveViewProps> = ({
   }, [finishLabel]);
 
   const AOIs = useMemo(() => {
-    return enhanceOrderVideoAnnos.filter(isAOIShape);
-  }, [enhanceOrderVideoAnnos]);
+    return videoAnnos.filter(isAOIShape);
+  }, [videoAnnos]);
 
   const countingLines = useMemo(() => {
-    return enhanceOrderVideoAnnos.filter(isCountingLine);
-  }, [enhanceOrderVideoAnnos]);
+    return plusOrderVideoAnnos(videoAnnos.filter(isCountingLine));
+  }, [videoAnnos]);
 
   const dangerZone = useMemo(() => {
-    return enhanceOrderVideoAnnos.filter(isDangerZone);
-  }, [enhanceOrderVideoAnnos]);
+    return plusOrderVideoAnnos(videoAnnos.filter(isDangerZone));
+  }, [videoAnnos]);
+
   return (
     <div
       ref={divRef}

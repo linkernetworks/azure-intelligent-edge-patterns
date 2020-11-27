@@ -1,12 +1,6 @@
-import * as R from 'ramda';
-
 import { VideoAnno } from '../store/shared/BaseShape';
 
-export type EnhanceVideoAnno = VideoAnno & {
-  order: number;
-};
-
-export const plusOrderVideoAnnos = (videoAnnos: VideoAnno[]) => {
+export const plusOrderVideoAnnos = (videoAnnos: VideoAnno | any) => {
   return videoAnnos
     .sort((a, b) => {
       if (a.id > b.id) {

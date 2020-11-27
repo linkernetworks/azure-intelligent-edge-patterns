@@ -21,7 +21,7 @@ type BoxProps = {
   removeBox: (id: string) => void;
   creatingState: CreatingState;
   color;
-  shapeIdx: number;
+  orderIdx?: number;
 };
 
 export const Box: React.FC<BoxProps> = ({
@@ -32,7 +32,7 @@ export const Box: React.FC<BoxProps> = ({
   removeBox,
   creatingState,
   color,
-  shapeIdx,
+  orderIdx = 0,
 }) => {
   const { x1, y1, x2, y2 } = box;
   const [cancelBtnVisible, setCancelBtnVisible] = useState(false);
@@ -140,11 +140,11 @@ export const Box: React.FC<BoxProps> = ({
       <Text
         x={x2}
         y={y1}
-        text={shapeIdx && shapeIdx.toString()}
+        text={orderIdx && orderIdx.toString()}
         fontSize={30}
-        fill="white"
+        fill={color}
         strokeWidth={3}
-        visible={true}
+        visible={!!orderIdx}
         scale={{ x: 1 / scale, y: 1 / scale }}
       />
     </Group>
