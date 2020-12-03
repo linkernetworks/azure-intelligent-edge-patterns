@@ -5,7 +5,6 @@ import {
   CommandBar,
   getTheme,
   Breadcrumb,
-  mergeStyleSets,
   ContextualMenuItemType,
 } from '@fluentui/react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -18,9 +17,9 @@ import { imageItemSelectorFactory, relabelImageSelector, selectNonDemoPart } fro
 import { getParts } from '../store/partSlice';
 import { selectNonDemoCameras } from '../store/cameraSlice';
 import { Status } from '../store/project/projectTypes';
+import { Url } from '../enums';
 
 import { useInterval } from '../hooks/useInterval';
-import { Url } from '../enums';
 
 import LabelingPage from '../components/LabelingPage/LabelingPage';
 import { MainImages } from '../components/Images/MainImages';
@@ -28,11 +27,6 @@ import { CaptureDialog } from '../components/CaptureDialog';
 import { Instruction } from '../components/Instruction';
 
 const theme = getTheme();
-const classes = mergeStyleSets({
-  seperator: {
-    margin: '20px 0px',
-  },
-});
 
 /**
  * Use the factory to create selector here.
