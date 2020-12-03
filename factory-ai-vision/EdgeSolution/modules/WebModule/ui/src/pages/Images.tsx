@@ -117,56 +117,51 @@ export const Images: React.FC = () => {
     }
   }
 
-  const commandBarItems: ICommandBarItemProps[] = useMemo(
-    () => [
-      {
-        key: 'uploadImages',
-        text: 'Upload images',
-        iconProps: {
-          iconName: 'Upload',
-        },
-        onClick: onUpload,
-      },
-      {
-        key: 'captureFromCamera',
-        text: 'Capture from camera',
-        iconProps: {
-          iconName: 'Camera',
-        },
-        onClick: openCaptureDialog,
-      },
-    ],
+  const commandBarItems: ICommandBarItemProps[] = useMemo(() => [{
+    key: 'uploadImages',
+    text: 'Upload images',
+    iconProps: {
+      iconName: 'Upload',
+    },
+    onClick: onUpload,
+  }, {
+    key: 'captureFromCamera',
+    text: 'Capture from camera',
+    iconProps: {
+      iconName: 'Camera',
+    },
+    onClick: openCaptureDialog,
+  }],
     [openCaptureDialog],
   );
 
   const [cameraItems, filteredCameras] = useFilterItems(selectNonDemoCameras);
   const [partItems, filteredParts] = useFilterItems(selectNonDemoPart);
 
-  const commandBarFarItems: ICommandBarItemProps[] = useMemo(
-    () => [
-      {
-        key: 'filter',
-        iconOnly: true,
-        // Make the icon solid if there is a filter applied
-        iconProps: { iconName: filteredCameras.length || filteredParts.length ? 'FilterSolid' : 'Filter' },
-        subMenuProps: {
-          items: [
-            {
-              key: 'byPart',
-              text: 'Filter by object',
-              itemType: ContextualMenuItemType.Header,
-            },
-            ...partItems,
-            {
-              key: 'byCamera',
-              text: 'Filter by camera',
-              itemType: ContextualMenuItemType.Header,
-            },
-            ...cameraItems,
-          ],
-        },
+  const commandBarFarItems: ICommandBarItemProps[] = useMemo(() => [
+    {
+      key: 'filter',
+      iconOnly: true,
+      // Make the icon solid if there is a filter applied
+      iconProps: { iconName: filteredCameras.length || filteredParts.length ? 'FilterSolid' : 'Filter' },
+      subMenuProps: {
+        items: [
+          {
+            key: 'byPart',
+            text: 'Filter by object',
+            itemType: ContextualMenuItemType.Header,
+          },
+          ...partItems,
+          {
+            key: 'byCamera',
+            text: 'Filter by camera',
+            itemType: ContextualMenuItemType.Header,
+          },
+          ...cameraItems,
+        ],
       },
-    ],
+    },
+  ],
     [cameraItems, filteredCameras.length, filteredParts.length, partItems],
   );
 
@@ -187,23 +182,28 @@ export const Images: React.FC = () => {
           farItems={commandBarFarItems}
         />
         <Stack styles={{ root: { padding: '15px' } }} grow>
-          {imageIsEnoughForTraining && (
-            <Instruction
-              title="Successfully added and tagged enough photos!"
-              subtitle="Now you can start deploying your model."
-              button={{ text: 'Go to Home', to: Url.HOME_CUSTOMIZE }}
-            />
-          )}
-          {relabelImgsReadyToTrain > 0 && (
-            <Instruction
-              title={`${relabelImgsReadyToTrain} images saved from the current deployment have been tagged!`}
-              subtitle="Update the deployment to retrain the model"
-              button={{
-                text: 'Update model',
-                to: Url.DEPLOYMENT,
-              }}
-            />
-          )}
+          {
+            imageIsEnoughForTraining
+            && (
+              <Instruction
+                title="Successfully added and tagged enough photos!"
+                subtitle="Now you can start deploying your model."
+                button={{ text: 'Go to Home', to: Url.HOME_CUSTOMIZE }}
+              />
+            )
+          }
+          {
+            relabelImgsReadyToTrain > 0
+            && (
+              <Instruction
+                title={`${relabelImgsReadyToTrain} images saved from the current deployment have been tagged!`}
+                subtitle="Update the deployment to retrain the model"
+                button={{
+                  text: 'Update model',
+                  to: Url.DEPLOYMENT,
+                }}
+              />
+            )}
           <Breadcrumb items={[{ key: 'images', text: 'Images' }]} />
           <MainImages
             labeledImages={labeledImages}

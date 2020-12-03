@@ -1,5 +1,3 @@
-/* eslint-disable react/display-name */
-
 import React from 'react';
 import { Pivot, PivotItem } from '@fluentui/react';
 
@@ -23,20 +21,26 @@ export const MainImages: React.FC<MainImagesProps> = ({
 }) => {
   const onRenderInstructionInsidePivot = () => (
     <>
-      {imageAddedButNoAnno && (
-        <Instruction
-          title="Successfully added images!"
-          subtitle="Now identify what is in your images to start training your model."
-          smallIcon
-        />
-      )}
-      {labeledImagesLessThanFifteen && (
-        <Instruction
-          title="Images have been tagged!"
-          subtitle="Continue adding and tagging more images to improve your model. We recommend at least 15 images per object."
-          smallIcon
-        />
-      )}
+      {
+        imageAddedButNoAnno
+        && (
+          <Instruction
+            title="Successfully added images!"
+            subtitle="Now identify what is in your images to start training your model."
+            smallIcon
+          />
+        )
+      }
+      {
+        labeledImagesLessThanFifteen
+        && (
+          <Instruction
+            title="Images have been tagged!"
+            subtitle="Continue adding and tagging more images to improve your model. We recommend at least 15 images per object."
+            smallIcon
+          />
+        )
+      }
     </>
   );
 

@@ -20,7 +20,10 @@ export const UntaggedPivot: React.FC<UntaggedPivotProps> = ({
   openCaptureDialog,
   onUpload,
 }) => {
-  if (unlabeledImages.length === 0 && relabelImages.length === 0)
+  if (
+    unlabeledImages.length === 0
+    && relabelImages.length === 0
+  )
     return (
       <EmptyAddIcon
         title="Looks like you don’t have any untagged images"
@@ -32,34 +35,40 @@ export const UntaggedPivot: React.FC<UntaggedPivotProps> = ({
 
   return (
     <>
-      {relabelImages.length > 0 && (
-        <>
-          <Separator alignContent="start" className={classes.seperator}>
-            Deployment captures
-          </Separator>
-          <MessageBar styles={{ root: { margin: '12px 0px' } }}>
-            Images saved from the current deployment. Confirm or modify the objects identified to improve your
-            model.
-          </MessageBar>
-          <FilteredImgList
-            images={relabelImages}
-            filteredCameras={filteredCameras}
-            filteredParts={filteredParts}
-          />
-        </>
-      )}
-      {unlabeledImages.length > 0 && (
-        <>
-          <Separator alignContent="start" className={classes.seperator}>
-            Manually added
-          </Separator>
-          <FilteredImgList
-            images={unlabeledImages}
-            filteredCameras={filteredCameras}
-            filteredParts={filteredParts}
-          />
-        </>
-      )}
+      {
+        relabelImages.length > 0
+        && (
+          <>
+            <Separator alignContent="start" className={classes.seperator}>
+              Deployment captures
+            </Separator>
+            <MessageBar styles={{ root: { margin: '12px 0px' } }}>
+              Images saved from the current deployment. Confirm or modify the objects identified to improve your
+              model.
+            </MessageBar>
+            <FilteredImgList
+              images={relabelImages}
+              filteredCameras={filteredCameras}
+              filteredParts={filteredParts}
+            />
+          </>
+        )
+      }
+      {
+        unlabeledImages.length > 0
+        && (
+          <>
+            <Separator alignContent="start" className={classes.seperator}>
+              Manually added
+            </Separator>
+            <FilteredImgList
+              images={unlabeledImages}
+              filteredCameras={filteredCameras}
+              filteredParts={filteredParts}
+            />
+          </>
+        )
+      }
     </>
   );
 };

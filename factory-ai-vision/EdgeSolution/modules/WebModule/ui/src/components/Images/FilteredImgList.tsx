@@ -1,5 +1,6 @@
-import { MessageBar } from '@fluentui/react';
 import React from 'react';
+import { MessageBar } from '@fluentui/react';
+
 import { ImageList, Item } from '../ImageList';
 
 function filterImgs(imgs: Item[], filterCameras: string[], filterParts: string[]): Item[] {
@@ -26,11 +27,14 @@ export const FilteredImgList: React.FC<FilteredImgListProps> = ({
 
   return (
     <div>
-      {!filteredImgs.length && (
-        <MessageBar styles={{ root: { margin: '5px 0px' } }}>
-          There are no images that match your current filter
-        </MessageBar>
-      )}
+      {
+        !filteredImgs.length
+        && (
+          <MessageBar styles={{ root: { margin: '5px 0px' } }}>
+            There are no images that match your current filter
+          </MessageBar>
+        )
+      }
       <ImageList images={filteredImgs} />
     </div>
   );
