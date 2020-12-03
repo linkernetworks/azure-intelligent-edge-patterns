@@ -5,10 +5,6 @@ import {
   CommandBar,
   getTheme,
   Breadcrumb,
-  Pivot,
-  PivotItem,
-  MessageBar,
-  Separator,
   mergeStyleSets,
   ContextualMenuItemType,
 } from '@fluentui/react';
@@ -27,10 +23,9 @@ import { useInterval } from '../hooks/useInterval';
 import { Url } from '../enums';
 
 import LabelingPage from '../components/LabelingPage/LabelingPage';
+import { MainImages } from '../components/Images/MainImages';
 import { CaptureDialog } from '../components/CaptureDialog';
 import { Instruction } from '../components/Instruction';
-import { FilteredImgList } from '../components/FilteredImgList';
-import { EmptyAddIcon } from '../components/EmptyAddIcon';
 
 const theme = getTheme();
 const classes = mergeStyleSets({
@@ -189,99 +184,6 @@ export const Images: React.FC = () => {
 
   useKeepAlive(relabelImages.length > 0);
 
-  const onRenderInstructionInsidePivot = () => (
-    <>
-      {imageAddedButNoAnno && (
-        <Instruction
-          title="Successfully added images!"
-          subtitle="Now identify what is in your images to start training your model."
-          smallIcon
-        />
-      )}
-      {labeledImagesLessThanFifteen && (
-        <Instruction
-          title="Images have been tagged!"
-          subtitle="Continue adding and tagging more images to improve your model. We recommend at least 15 images per object."
-          smallIcon
-        />
-      )}
-    </>
-  );
-
-  const onRenderUntaggedPivot = () => {
-    if (unlabeledImages.length === 0 && relabelImages.length === 0)
-      return (
-        <EmptyAddIcon
-          title="Looks like you don’t have any untagged images"
-          subTitle="Continue adding and tagging more images from your video streams to improve your model"
-          primary={{ text: 'Capture from camera', onClick: openCaptureDialog }}
-          secondary={{ text: 'Upload images', onClick: onUpload }}
-        />
-      );
-
-    return (
-      <>
-        {relabelImages.length > 0 && (
-          <>
-            <Separator alignContent="start" className={classes.seperator}>
-              Deployment captures
-            </Separator>
-            <MessageBar styles={{ root: { margin: '12px 0px' } }}>
-              Images saved from the current deployment. Confirm or modify the objects identified to improve
-              your model.
-            </MessageBar>
-            <FilteredImgList
-              images={relabelImages}
-              filteredCameras={filteredCameras}
-              filteredParts={filteredParts}
-            />
-          </>
-        )}
-        {unlabeledImages.length > 0 && (
-          <>
-            <Separator alignContent="start" className={classes.seperator}>
-              Manually added
-            </Separator>
-            <FilteredImgList
-              images={unlabeledImages}
-              filteredCameras={filteredCameras}
-              filteredParts={filteredParts}
-            />
-          </>
-        )}
-      </>
-    );
-  };
-
-  const onRenderMain = () => {
-    if (labeledImages.length + unlabeledImages.length)
-      return (
-        <Pivot>
-          <PivotItem headerText="Untagged">
-            {onRenderInstructionInsidePivot()}
-            {onRenderUntaggedPivot()}
-          </PivotItem>
-          <PivotItem headerText="Tagged">
-            {onRenderInstructionInsidePivot()}
-            <FilteredImgList
-              images={labeledImages}
-              filteredCameras={filteredCameras}
-              filteredParts={filteredParts}
-            />
-          </PivotItem>
-        </Pivot>
-      );
-
-    return (
-      <EmptyAddIcon
-        title="Add images"
-        subTitle="Capture images from your video streams and tag parts"
-        primary={{ text: 'Capture from camera', onClick: openCaptureDialog }}
-        secondary={{ text: 'Upload images', onClick: onUpload }}
-      />
-    );
-  };
-
   return (
     <>
       <Stack styles={{ root: { height: '100%' } }}>
@@ -309,7 +211,17 @@ export const Images: React.FC = () => {
             />
           )}
           <Breadcrumb items={[{ key: 'images', text: 'Images' }]} />
-          {onRenderMain()}
+          <MainImages
+            labeledImages={labeledImages}
+            unlabeledImages={unlabeledImages}
+            relabelImages={relabelImages}
+            filteredCameras={filteredCameras}
+            filteredParts={filteredParts}
+            imageAddedButNoAnno={imageAddedButNoAnno}
+            labeledImagesLessThanFifteen={labeledImagesLessThanFifteen}
+            onUpload={onUpload}
+            openCaptureDialog={openCaptureDialog}
+          />
         </Stack>
       </Stack>
       <CaptureDialog isOpen={isCaptureDialgOpen} onDismiss={closeCaptureDialog} />

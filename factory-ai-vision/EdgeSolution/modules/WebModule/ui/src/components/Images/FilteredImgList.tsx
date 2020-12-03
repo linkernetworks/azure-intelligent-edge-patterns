@@ -1,6 +1,6 @@
 import { MessageBar } from '@fluentui/react';
 import React from 'react';
-import { ImageList, Item } from './ImageList';
+import { ImageList, Item } from '../ImageList';
 
 function filterImgs(imgs: Item[], filterCameras: string[], filterParts: string[]): Item[] {
   let filteredImgs = imgs;
