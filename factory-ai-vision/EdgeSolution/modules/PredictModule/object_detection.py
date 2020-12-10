@@ -214,7 +214,6 @@ class ObjectDetection(object):
         # return boxes, scores, indices
 
     def preprocess(self, image):
-        logging.info('pre')
         if self.input_format == "RGB":
             image = cv2.resize(
                 image, (int(self.model_inp_width), int(self.model_inp_height)))

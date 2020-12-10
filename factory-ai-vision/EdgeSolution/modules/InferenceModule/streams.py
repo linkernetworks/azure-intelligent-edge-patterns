@@ -20,7 +20,7 @@ from object_detection import ObjectDetection
 from onnxruntime_predict import ONNXRuntimeObjectDetection
 
 # from tracker import Tracker
-from scenarios import DangerZone, DefeatDetection, Detection, PartCounter, PartDetection
+from scenarios import DangerZone, DefeatDetection, Detection, PartCounter, PartDetection, ToolDetection
 from utility import draw_label, get_file_zip, is_edge, normalize_rtsp
 
 DETECTION_TYPE_NOTHING = "nothing"
@@ -298,10 +298,12 @@ class Stream:
 
         elif detection_mode == "ES":
             print("[INFO] Zone INFO", zone_info, flush=True)
-            self.scenario = DangerZone()
+            # self.scenario = DangerZone()
+            self.scenario = ToolDetection()
             self.scenario_type = self.model.detection_mode
             # FIXME
-            self.scenario.set_targets(["Person"])
+            # self.scenario.set_targets(["Person"])
+            self.scenario.set_targets(["screwdriver"])
             try:
                 zone_info = json.loads(zone_info)
                 self.use_zone = zone_info["useDangerZone"]

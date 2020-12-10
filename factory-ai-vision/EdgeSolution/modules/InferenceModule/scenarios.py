@@ -551,5 +551,139 @@ class DangerZone(Scenario):
         return img
 
 
+class ToolDetection(Scenario):
+    def __init__(self, threshold=0.3, max_age=20, min_hits=10, iou_threshold=0.5):
+        self.detected = {}
+        self.counter = {}
+        self.zones = []
+        self.targets = []
+        self.threshold = threshold
+        self.has_new_event = False
+
+        self.max_age = max_age
+        self.age_tmp = {}
+
+    def set_treshold(self):
+        self.threshold = threshold
+
+    def reset_metrics(self):
+        # self.counter = 0
+        for i in self.counter:
+            self.counter[i] = 0
+
+    def set_targets(self, targets):
+        self.targets = targets
+        for target in self.targets:
+            self.counter[target] = 0
+            self.age_tmp[target] = self.max_age
+
+    def get_metrics(self):
+        return [{"name": "violation", "count": self.counter}]
+
+    def set_zones(self, zones):
+        self.zones = []
+        for zone in zones:
+            x1, y1, x2, y2, zone_id = zone
+            _zone = Rect(x1, y1, x2, y2)
+            _zone.id = zone_id
+            # self.counter[_zone.id] = 0
+            self.zones.append(_zone)
+
+    def is_inside_zones(self, x1, y1, x2, y2):
+        for zone in self.zones:
+            if zone.is_inside(x1, y1, x2, y2):
+                return True
+        return False
+
+    def update(self, detections):
+        detections = list(d for d in detections if d.score > self.threshold)
+        detections = list(
+            [d.x1, d.y1, d.x2, d.y2, d.score, d.tag]
+            for d in detections
+            if d.tag in self.targets
+        )
+
+        counted = []
+        has_new_event = False
+        detected_object = []
+        if len(detections) == 0:
+            for target in self.age_tmp:
+                self.age_tmp[target] -= 1
+                if self.age_tmp[target] <= 0:
+                    self.counter[target] += 1
+                    self.age_tmp[target] = self.max_age
+        else:
+            for i in range(len(detections)):
+                x1, y1, x2, y2, score, tag = detections[i]
+                if self.zones[0].is_inside(x1, y1, x2, y2):
+                    detected_object.append(tag)
+            for target in self.age_tmp:
+                if target in detected_object:
+                    self.age_tmp[target] = self.max_age
+                else:
+                    self.age_tmp[target] -= 1
+                    if self.age_tmp[target] <= 0:
+                        self.counter[target] += 1
+                        self.age_tmp[target] = self.max_age
+                        has_new_event = True
+
+        self.has_new_event = has_new_event
+        return self.counter, counted
+
+    def draw_counter(self, img):
+        font = cv2.FONT_HERSHEY_DUPLEX
+        font_scale = 0.7
+        thickness = 1
+        x = int(max(0, img.shape[1] - 300))
+        y = int(min(30, img.shape[0]))
+        for i in self.counter:
+            img = cv2.putText(
+                img,
+                "Violations({}): {}".format(i, str(self.counter[i])),
+                (x, y),
+                font,
+                font_scale,
+                (255, 255, 255),
+                thickness,
+            )
+            y += 25
+        return img
+
+    def draw_constraint(self, img):
+        return self.draw_zones(img)
+
+    def draw_zones(self, img):
+        thickness = 1
+        for zone in self.zones:
+            img = cv2.rectangle(
+                img,
+                (int(zone.x1), int(zone.y1)),
+                (int(zone.x2), int(zone.y2)),
+                (255, 255, 255),
+                thickness,
+            )
+        return img
+
+    def draw_objs(self, img, is_id=True, is_rect=True):
+        for obj in self.tracker.get_objs():
+            font = cv2.FONT_HERSHEY_DUPLEX
+            font_scale = 0.7
+            thickness = 1
+            x1, y1, x2, y2, oid = obj
+            x1 = int(x1)
+            y1 = int(y1)
+            x2 = int(x2)
+            y2 = int(y2)
+            oid = int(oid)
+            x = x1
+            y = y1 - 5
+            if is_id:
+                img = draw_label(img, str(oid), (x, y))
+            if is_rect:
+                img = cv2.rectangle(img, (x1, y1), (x2, y2),
+                                    (255, 255, 255), thickness)
+        return img
+
+
 def compute_center(x1, y1, x2, y2):
     return (x1 + x2) / 2, (y1 + y2) / 2
