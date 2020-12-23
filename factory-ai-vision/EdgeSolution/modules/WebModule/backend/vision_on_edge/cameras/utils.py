@@ -9,7 +9,8 @@ import cv2
 import requests
 
 from ..azure_iot.utils import upload_module_url
-from .exceptions import CameraMediaSourceInvalid, CameraRtspBusy, CameraRtspInvalid
+from requests.exceptions import ReadTimeout
+from .exceptions import CameraMediaSourceInvalid, CameraRtspBusy, CameraRtspInvalid, UploadMediaSourceTimeout
 
 logger = logging.getLogger(__name__)
 
@@ -87,9 +88,13 @@ def verify_rtsp(rtsp, raise_exception: bool = False):
 
 
 def upload_media_source(media_source):
-    res = requests.post(
-        "http://" + str(upload_module_url()) + "/upload", json={"url": media_source}
-    )
+    try:
+        res = requests.post(
+            "http://" + str(upload_module_url()) + "/upload", json={"url": media_source}
+        )
+    except ReadTimeout as err:
+        raise UploadMediaSourceTimeout from err
+
     if res.status_code != 200:
         raise CameraMediaSourceInvalid
     rtsp = res.json()

@@ -26,3 +26,11 @@ class CameraMediaSourceInvalid(APIException):
     status_code = 400
     default_detail = "Camera media source is invalid."
     default_code = "camera_media_source_invalid"
+
+
+class UploadMediaSourceTimeout(APIException):
+    status_code = 503
+    default_detail = (
+        "Please wait while the video is uploading.  Refresh again in some time."
+    )
+    default_code = "upload_media_source_timeout"
